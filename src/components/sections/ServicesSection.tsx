@@ -15,7 +15,7 @@ const data = [
 const techWords = ['NEXT.JS','REACT','TYPESCRIPT','TAILWIND','GSAP','SUPABASE','PRISMA','FIGMA','VERCEL','THREE.JS','FRAMER','OPENAI','AUTOMATION','UI/UX','FULL-STACK','AI','SEO','SAAS']
 const marqueeWords = ['Next.js','React','TypeScript','Tailwind CSS','Supabase','Prisma','GSAP','Three.js','Figma','Vercel','OpenAI','Framer Motion']
 
-function OrbitalCanvas() {
+function OrbitalCanvas({ className, style }: { className?: string; style?: React.CSSProperties }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const secRef = useRef<HTMLDivElement>(null)
   const mouseRef = useRef({ x: 0.5, y: 0.5, rx: 0, ry: 0, hov: false })
@@ -39,11 +39,17 @@ function OrbitalCanvas() {
     const ow = techWords.map((w, i) => {
       const orb = Math.floor(i / 6)
       const sp = (0.0004 + orb * 0.0002) * (i % 2 === 0 ? 1 : -1)
-      return { text: w, orb, angle: (i % 6) / 6 * Math.PI * 2 + Math.random() * 0.4, radius: 110 + orb * 80, speed: sp, alpha: 0, size: orb === 0 ? 11 : orb === 1 ? 9 : 8, weight: orb === 0 ? '700' : orb === 1 ? '500' : '400', isGold: i % 5 === 0, px: 0, py: 0, scale: 1 }
+      return {
+        text: w, orb, angle: (i % 6) / 6 * Math.PI * 2 + Math.random() * 0.4,
+        radius: 80 + orb * 60, speed: sp, alpha: 0,
+        size: orb === 0 ? 10 : orb === 1 ? 8.5 : 7.5,
+        weight: orb === 0 ? '700' : orb === 1 ? '500' : '400',
+        isGold: i % 5 === 0, px: 0, py: 0, scale: 1
+      }
     })
-    const parts = Array.from({ length: 120 }, () => {
-      const a = Math.random() * Math.PI * 2, r = 10 + Math.random() * 260
-      return { angle: a, radius: r, speed: (0.001 + Math.random() * 0.003) * (Math.random() > 0.5 ? 1 : -1), size: 0.5 + Math.random() * 1.5, alpha: 0.07 + Math.random() * 0.3, isGold: Math.random() < 0.3 }
+    const parts = Array.from({ length: 100 }, () => {
+      const a = Math.random() * Math.PI * 2, r = 10 + Math.random() * 220
+      return { angle: a, radius: r, speed: (0.001 + Math.random() * 0.003) * (Math.random() > 0.5 ? 1 : -1), size: 0.5 + Math.random() * 1.4, alpha: 0.07 + Math.random() * 0.28, isGold: Math.random() < 0.3 }
     })
     const bursts: { x: number; y: number; r: number; life: number }[] = []
     let cGlow = 0, cScale = 1, cTargetScale = 1, t = 0, raf: number
@@ -56,8 +62,7 @@ function OrbitalCanvas() {
     const onClick = (e: MouseEvent) => {
       const r = sec.getBoundingClientRect()
       bursts.push({ x: e.clientX - r.left, y: e.clientY - r.top, r: 0, life: 1 })
-      cTargetScale = 1.12
-      setTimeout(() => { cTargetScale = 1 }, 300)
+      cTargetScale = 1.12; setTimeout(() => { cTargetScale = 1 }, 300)
     }
     sec.addEventListener('mousemove', onMove)
     sec.addEventListener('mouseleave', onLeave)
@@ -66,42 +71,35 @@ function OrbitalCanvas() {
     const lp = (a: number, b: number, f: number) => a + (b - a) * f
 
     const draw = () => {
-      ctx.clearRect(0, 0, W, H)
-      t += 0.008
+      ctx.clearRect(0, 0, W, H); t += 0.008
       const m = mouseRef.current
       cGlow = lp(cGlow, m.hov ? 1 : 0.65, 0.04)
       cScale = lp(cScale, cTargetScale, 0.12)
+      const vcx = W / 2 + lp(0, (m.x - 0.5) * 35, 0.3)
+      const vcy = H / 2 + lp(0, (m.y - 0.5) * 20, 0.3)
 
-      const vcx = W / 2 + lp(0, (m.x - 0.5) * 40, 0.3)
-      const vcy = H / 2 + lp(0, (m.y - 0.5) * 25, 0.3)
-
-      /* Ambient glow */
-      const ag = ctx.createRadialGradient(vcx, vcy, 0, vcx, vcy, W * 0.45)
+      const ag = ctx.createRadialGradient(vcx, vcy, 0, vcx, vcy, Math.min(W, H) * 0.5)
       ag.addColorStop(0, GOLD + 0.07 * cGlow + ')')
       ag.addColorStop(0.5, GOLD + 0.02 * cGlow + ')')
       ag.addColorStop(1, 'transparent')
       ctx.fillStyle = ag; ctx.fillRect(0, 0, W, H)
 
-      /* Orbit rings */
-      ;[110, 190, 270].forEach((br, ri) => {
-        ctx.beginPath()
-        ctx.arc(vcx, vcy, br + Math.sin(t * 0.5 + ri) * 3, 0, Math.PI * 2)
+      ;[80, 140, 200].forEach((br, ri) => {
+        ctx.beginPath(); ctx.arc(vcx, vcy, br + Math.sin(t * 0.5 + ri) * 2, 0, Math.PI * 2)
         ctx.strokeStyle = GOLD + (0.06 - ri * 0.015) + ')'
-        ctx.lineWidth = 0.5; ctx.setLineDash([2, 10]); ctx.stroke(); ctx.setLineDash([])
+        ctx.lineWidth = 0.5; ctx.setLineDash([2, 9]); ctx.stroke(); ctx.setLineDash([])
       })
 
-      /* Particles */
       parts.forEach(p => {
         p.angle += p.speed
         const px = vcx + Math.cos(p.angle + t * 0.08) * p.radius
         const py = vcy + Math.sin(p.angle + t * 0.08) * p.radius * 0.55
         ctx.beginPath(); ctx.arc(px, py, p.size, 0, Math.PI * 2)
         ctx.fillStyle = (p.isGold ? GOLD : WHITE) + p.alpha * cGlow + ')'
-        if (p.isGold && p.size > 1) { ctx.shadowColor = '#D4A45F'; ctx.shadowBlur = 6 }
+        if (p.isGold && p.size > 1) { ctx.shadowColor = '#D4A45F'; ctx.shadowBlur = 5 }
         ctx.fill(); ctx.shadowBlur = 0
       })
 
-      /* Words */
       ow.forEach(w => {
         w.angle += w.speed
         w.px = vcx + Math.cos(w.angle) * w.radius
@@ -109,48 +107,39 @@ function OrbitalCanvas() {
         const depth = 0.3 + (Math.sin(w.angle) * 0.5 + 0.5) * 0.7
         w.alpha = lp(w.alpha, depth, 0.06)
         const dx = m.rx - w.px, dy = m.ry - w.py
-        const hov = m.hov && Math.sqrt(dx * dx + dy * dy) < 50
+        const hov = m.hov && Math.sqrt(dx * dx + dy * dy) < 46
         w.scale = lp(w.scale, hov ? 1.5 : 1, 0.1)
         ctx.save(); ctx.translate(w.px, w.py); ctx.scale(w.scale, w.scale)
         ctx.font = `${w.weight} ${w.size}px Inter, sans-serif`
         ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
-        if (hov) { ctx.shadowColor = w.isGold ? '#D4A45F' : '#fff'; ctx.shadowBlur = 20; ctx.fillStyle = w.isGold ? 'rgba(212,164,95,1)' : 'rgba(255,255,255,1)' }
+        if (hov) { ctx.shadowColor = w.isGold ? '#D4A45F' : '#fff'; ctx.shadowBlur = 18; ctx.fillStyle = w.isGold ? 'rgba(212,164,95,1)' : 'rgba(255,255,255,1)' }
         else { ctx.fillStyle = (w.isGold ? GOLD : WHITE) + w.alpha * 0.85 + ')' }
         ctx.fillText(w.text, 0, 0); ctx.shadowBlur = 0; ctx.restore()
       })
 
-      /* Center */
       ctx.save(); ctx.translate(vcx, vcy); ctx.scale(cScale, cScale)
       for (let ri = 4; ri >= 0; ri--) {
-        const cr = ctx.createRadialGradient(0, 0, 0, 0, 0, 16 + ri * 14)
-        cr.addColorStop(0, GOLD + (0.15 - ri * 0.025) * cGlow + ')')
-        cr.addColorStop(1, 'transparent')
-        ctx.fillStyle = cr; ctx.beginPath(); ctx.arc(0, 0, 16 + ri * 14, 0, Math.PI * 2); ctx.fill()
+        const cr = ctx.createRadialGradient(0, 0, 0, 0, 0, 14 + ri * 12)
+        cr.addColorStop(0, GOLD + (0.14 - ri * 0.022) * cGlow + ')'); cr.addColorStop(1, 'transparent')
+        ctx.fillStyle = cr; ctx.beginPath(); ctx.arc(0, 0, 14 + ri * 12, 0, Math.PI * 2); ctx.fill()
       }
-      const cg = ctx.createRadialGradient(0, 0, 0, 0, 0, 10)
-      cg.addColorStop(0, `rgba(255,255,255,${0.95 * cGlow})`)
-      cg.addColorStop(0.4, GOLD + 0.9 * cGlow + ')')
-      cg.addColorStop(1, GOLD + '0)')
-      ctx.fillStyle = cg; ctx.shadowColor = '#D4A45F'; ctx.shadowBlur = 35 * cGlow
-      ctx.beginPath(); ctx.arc(0, 0, 9, 0, Math.PI * 2); ctx.fill(); ctx.shadowBlur = 0
-      ctx.font = '800 8px Inter, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
-      ctx.fillStyle = `rgba(255,255,255,${0.35 * cGlow})`; ctx.fillText('MATUCHOVIC', 0, 22)
+      const cg = ctx.createRadialGradient(0, 0, 0, 0, 0, 9)
+      cg.addColorStop(0, `rgba(255,255,255,${0.95 * cGlow})`); cg.addColorStop(0.4, GOLD + 0.9 * cGlow + ')'); cg.addColorStop(1, GOLD + '0)')
+      ctx.fillStyle = cg; ctx.shadowColor = '#D4A45F'; ctx.shadowBlur = 30 * cGlow
+      ctx.beginPath(); ctx.arc(0, 0, 8, 0, Math.PI * 2); ctx.fill(); ctx.shadowBlur = 0
+      ctx.font = '800 7px Inter, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
+      ctx.fillStyle = `rgba(255,255,255,${0.3 * cGlow})`; ctx.fillText('MATUCHOVIC', 0, 20)
       ctx.restore()
 
-      /* Bursts */
       for (let i = bursts.length - 1; i >= 0; i--) {
-        const b = bursts[i]; b.r += 8; b.life -= 0.055
+        const b = bursts[i]; b.r += 7; b.life -= 0.055
         if (b.life <= 0) { bursts.splice(i, 1); continue }
         ctx.beginPath(); ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2)
         ctx.strokeStyle = GOLD + b.life * 0.5 + ')'; ctx.lineWidth = 1.5; ctx.stroke()
-        ctx.beginPath(); ctx.arc(b.x, b.y, b.r * 0.55, 0, Math.PI * 2)
-        ctx.strokeStyle = WHITE + b.life * 0.25 + ')'; ctx.lineWidth = 0.5; ctx.stroke()
       }
-
       raf = requestAnimationFrame(draw)
     }
     draw()
-
     return () => {
       cancelAnimationFrame(raf); ro.disconnect()
       sec.removeEventListener('mousemove', onMove)
@@ -160,15 +149,8 @@ function OrbitalCanvas() {
   }, [])
 
   return (
-    <div ref={secRef} className="relative overflow-hidden cursor-crosshair" style={{ height: 500 }}>
-      <div className="absolute inset-x-0 top-0 h-28 pointer-events-none z-10" style={{ background: 'linear-gradient(to bottom,#090909,transparent)' }} />
-      <div className="absolute inset-x-0 bottom-0 h-28 pointer-events-none z-10" style={{ background: 'linear-gradient(to top,#090909,transparent)' }} />
-      <div className="absolute inset-y-0 left-0 w-24 pointer-events-none z-10" style={{ background: 'linear-gradient(to right,#090909,transparent)' }} />
-      <div className="absolute inset-y-0 right-0 w-24 pointer-events-none z-10" style={{ background: 'linear-gradient(to left,#090909,transparent)' }} />
+    <div ref={secRef} className={`relative overflow-hidden cursor-crosshair ${className || ''}`} style={style}>
       <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
-      <div className="absolute bottom-5 left-1/2 -translate-x-1/2 z-20 pointer-events-none" style={{ fontSize: 8, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.1)' }}>
-        pohybuj myší · klikni
-      </div>
     </div>
   )
 }
@@ -183,16 +165,12 @@ function ScrollingCards({ onActiveChange }: { onActiveChange: (d: typeof data[0]
     const track = trackRef.current
     const col = colRef.current
     if (!track || !col) return
-    const SPEED = 0.42
     let raf: number, lastIdx = -1
 
     const buildCard = (d: typeof data[0], idx: number) => {
       const card = document.createElement('div')
       card.dataset.idx = String(idx)
       card.style.cssText = `width:100%;border-radius:16px;border:1px solid rgba(255,255,255,0.07);padding:20px;position:relative;overflow:hidden;flex-shrink:0;transition:filter 0.2s,opacity 0.2s,border-color 0.3s,box-shadow 0.3s;cursor:pointer;background:rgba(255,255,255,0.025);`
-
-      const topLine = document.createElement('div')
-      topLine.style.cssText = 'position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.09),transparent);transition:background 0.4s;'
 
       const sp = document.createElement('div')
       sp.style.cssText = `position:absolute;inset:0;border-radius:16px;pointer-events:none;z-index:2;opacity:0;transition:opacity 0.4s;background:radial-gradient(circle at 40% 30%,rgba(255,255,255,0.04) 0%,transparent 70%);`
@@ -228,21 +206,16 @@ function ScrollingCards({ onActiveChange }: { onActiveChange: (d: typeof data[0]
           <div style="width:20px;height:20px;border-radius:50%;border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.3);font-size:9px;">↗</div>
         </div>`
 
-      card.appendChild(topLine); card.appendChild(sp); card.appendChild(cv); card.appendChild(cont)
-
+      card.appendChild(sp); card.appendChild(cv); card.appendChild(cont)
       card.addEventListener('mouseenter', () => {
-        isPausedRef.current = true
-        sp.style.opacity = '1'
+        isPausedRef.current = true; sp.style.opacity = '1'
         card.style.borderColor = 'rgba(255,255,255,0.16)'
-        card.style.boxShadow = '0 0 40px rgba(0,0,0,0.4), inset 0 0 20px rgba(255,255,255,0.02)'
+        card.style.boxShadow = '0 0 40px rgba(0,0,0,0.4),inset 0 0 20px rgba(255,255,255,0.02)'
         card.style.filter = 'none'; card.style.opacity = '1'; card.style.transform = 'scale(1.02)'
         onActiveChange(data[idx])
       })
       card.addEventListener('mouseleave', () => {
-        isPausedRef.current = false
-        sp.style.opacity = '0'
-        card.style.borderColor = ''
-        card.style.boxShadow = ''
+        isPausedRef.current = false; sp.style.opacity = '0'; card.style.borderColor = ''; card.style.boxShadow = ''
       })
       return card
     }
@@ -259,7 +232,7 @@ function ScrollingCards({ onActiveChange }: { onActiveChange: (d: typeof data[0]
     }
 
     const animate = () => {
-      if (!isPausedRef.current) scrollYRef.current += SPEED
+      if (!isPausedRef.current) scrollYRef.current += 0.42
       const half = getHalf()
       if (half > 0 && scrollYRef.current >= half) scrollYRef.current -= half
       track.style.transform = `translateX(-50%) translateY(-${scrollYRef.current}px)`
@@ -278,9 +251,7 @@ function ScrollingCards({ onActiveChange }: { onActiveChange: (d: typeof data[0]
         if (dist < bestD) { bestD = dist; bestIdx = parseInt(card.dataset.idx || '0') }
         cumY += ch + 12
       })
-      if (!isPausedRef.current && bestIdx !== lastIdx) {
-        lastIdx = bestIdx; onActiveChange(data[bestIdx])
-      }
+      if (!isPausedRef.current && bestIdx !== lastIdx) { lastIdx = bestIdx; onActiveChange(data[bestIdx]) }
       raf = requestAnimationFrame(animate)
     }
     animate()
@@ -304,11 +275,7 @@ export function ServicesSection() {
   const handleActiveChange = (d: typeof data[0]) => {
     if (d.num === lastActiveRef.current.num) return
     setPanelFade(true)
-    setTimeout(() => {
-      setActive(d)
-      lastActiveRef.current = d
-      setPanelFade(false)
-    }, 180)
+    setTimeout(() => { setActive(d); lastActiveRef.current = d; setPanelFade(false) }, 180)
   }
 
   return (
@@ -316,9 +283,7 @@ export function ServicesSection() {
 
       {/* ── INTRO ── */}
       <div className="relative overflow-hidden" style={{ padding: '72px 64px 52px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-        {/* BG text */}
-        <div className="absolute select-none pointer-events-none" style={{ top: -8, right: -24, fontSize: 140, fontWeight: 900, color: 'rgba(255,255,255,0.02)', letterSpacing: '-0.06em', lineHeight: 1, zIndex: 0 }}>SLUŽBY</div>
-
+        <div className="absolute select-none pointer-events-none" style={{ top: -8, right: -24, fontSize: 140, fontWeight: 900, color: 'rgba(255,255,255,0.02)', letterSpacing: '-0.06em', lineHeight: 1 }}>SLUŽBY</div>
         <div className="relative z-10 grid gap-14" style={{ gridTemplateColumns: '1fr 1fr' }}>
           <div>
             <motion.p initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}
@@ -331,9 +296,7 @@ export function ServicesSection() {
               <span style={{ color: 'rgba(255,255,255,0.18)' }}>fungují.</span>
             </motion.h2>
           </div>
-
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6, delay: 0.2 }}
-            className="flex flex-col justify-end">
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6, delay: 0.2 }} className="flex flex-col justify-end">
             <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.4)', lineHeight: 1.8, marginBottom: 28, maxWidth: 360 }}>
               Neprodávám šablony. Každý projekt vzniká od nuly — s pochopením vašeho byznysu, zákazníků a cílů.{' '}
               <strong style={{ color: 'rgba(255,255,255,0.72)', fontWeight: 600 }}>Výsledek má být funkční, rychlý a krásný zároveň.</strong>
@@ -350,8 +313,6 @@ export function ServicesSection() {
             </div>
           </motion.div>
         </div>
-
-        {/* Marquee */}
         <div className="relative mt-10 overflow-hidden" style={{ height: 30 }}>
           <div className="absolute inset-y-0 left-0 w-20 z-10 pointer-events-none" style={{ background: 'linear-gradient(to right,#090909,transparent)' }} />
           <div className="absolute inset-y-0 right-0 w-20 z-10 pointer-events-none" style={{ background: 'linear-gradient(to left,#090909,transparent)' }} />
@@ -368,11 +329,7 @@ export function ServicesSection() {
       {/* ── SCROLLING CARDS + PANEL ── */}
       <div className="flex items-center" style={{ height: 520, borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
         <ScrollingCards onActiveChange={handleActiveChange} />
-
-        {/* Divider */}
         <div style={{ width: 1, height: 300, flexShrink: 0, background: 'linear-gradient(to bottom,transparent,rgba(255,255,255,0.07) 25%,rgba(255,255,255,0.07) 75%,transparent)' }} />
-
-        {/* Dynamic panel */}
         <div className="flex-1" style={{ padding: '0 40px 0 48px' }}>
           <p style={{ fontSize: 8, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'rgba(212,164,95,0.7)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 10 }}>
             <span style={{ width: 14, height: 1, background: 'rgba(212,164,95,0.5)', display: 'inline-block' }} />Specializace
@@ -394,35 +351,42 @@ export function ServicesSection() {
         </div>
       </div>
 
-      {/* ── DIVIDER QUOTE ── */}
-      <div className="flex items-center gap-6" style={{ padding: '20px 64px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-        <div style={{ flex: 1, height: 1, background: 'linear-gradient(to right,transparent,rgba(255,255,255,0.07),transparent)' }} />
-        <p style={{ fontSize: 12, fontWeight: 300, color: 'rgba(255,255,255,0.18)', letterSpacing: '0.04em', fontStyle: 'italic', whiteSpace: 'nowrap' }}>
-          Technologie je jen nástroj —{' '}<strong style={{ color: 'rgba(212,164,95,0.5)', fontStyle: 'normal', fontWeight: 600 }}>výsledek je to, co počítá</strong>
-        </p>
-        <div style={{ flex: 1, height: 1, background: 'linear-gradient(to right,transparent,rgba(255,255,255,0.07),transparent)' }} />
-      </div>
+      {/* ── BOTTOM ROW: quote + outro text LEFT, orbital RIGHT ── */}
+      <div className="flex" style={{ borderTop: '1px solid rgba(255,255,255,0.05)', minHeight: 480 }}>
 
-      {/* ── ORBITAL ── */}
-      <OrbitalCanvas />
+        {/* Left — quote + outro */}
+        <div className="flex flex-col justify-center" style={{ flex: '0 0 50%', padding: '64px 64px 64px 64px', borderRight: '1px solid rgba(255,255,255,0.05)' }}>
 
-      {/* ── OUTRO ── */}
-      <div className="flex items-center justify-between gap-12" style={{ padding: '48px 64px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-        <div>
-          <motion.h3 initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}
-            style={{ fontSize: 'clamp(20px,2.5vw,30px)', fontWeight: 900, letterSpacing: '-0.04em', color: '#fff', lineHeight: 1.1, marginBottom: 10 }}>
-            Máte projekt v hlavě?{' '}<span style={{ color: '#D4A45F' }}>Pojďme na to.</span>
-          </motion.h3>
-          <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', lineHeight: 1.75, maxWidth: 400 }}>
-            První konzultace je zdarma. Řeknete mi o projektu, já řeknu jak na to — bez závazků, bez bullshitu.
-          </p>
+          {/* Divider quote */}
+          <div className="flex items-center gap-5 mb-16">
+            <div style={{ width: 22, height: 1, background: 'rgba(212,164,95,0.4)', flexShrink: 0 }} />
+            <p style={{ fontSize: 13, fontWeight: 300, color: 'rgba(255,255,255,0.22)', letterSpacing: '0.03em', fontStyle: 'italic', lineHeight: 1.6 }}>
+              Technologie je jen nástroj —{' '}<strong style={{ color: 'rgba(212,164,95,0.55)', fontStyle: 'normal', fontWeight: 600 }}>výsledek je to, co počítá</strong>
+            </p>
+          </div>
+
+          {/* Outro */}
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7 }}>
+            <h3 style={{ fontSize: 'clamp(22px,2.8vw,36px)', fontWeight: 900, letterSpacing: '-0.04em', color: '#fff', lineHeight: 1.08, marginBottom: 14 }}>
+              Máte projekt<br />v hlavě?{' '}<span style={{ color: '#D4A45F' }}>Pojďme na to.</span>
+            </h3>
+            <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.32)', lineHeight: 1.78, marginBottom: 28, maxWidth: 380 }}>
+              První konzultace je zdarma. Řeknete mi o projektu, já řeknu jak na to — bez závazků, bez bullshitu.
+            </p>
+            <div className="flex flex-col items-start gap-3">
+              <a href="#kontakt" style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: '#D4A45F', color: '#090909', fontSize: 10, fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase', padding: '13px 26px', borderRadius: 40, boxShadow: '0 4px 24px rgba(212,164,95,0.25)' }}>
+                Domluvit konzultaci ↗
+              </a>
+              <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.15)', letterSpacing: '0.08em' }}>Obvykle odpovídám do 24 hodin</span>
+            </div>
+          </motion.div>
         </div>
-        <div className="flex flex-col items-end gap-3 flex-shrink-0">
-          <a href="#kontakt" style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: '#D4A45F', color: '#090909', fontSize: 10, fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase', padding: '14px 28px', borderRadius: 40, boxShadow: '0 4px 24px rgba(212,164,95,0.25)' }}>
-            Domluvit konzultaci ↗
-          </a>
-          <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.15)', letterSpacing: '0.08em' }}>Obvykle odpovídám do 24 hodin</span>
-        </div>
+
+        {/* Right — orbital */}
+        <OrbitalCanvas
+          className="flex-1"
+          style={{ minHeight: 480 }}
+        />
       </div>
 
       <style>{`@keyframes svcMarquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }`}</style>
