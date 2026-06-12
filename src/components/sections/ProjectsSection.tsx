@@ -2,87 +2,37 @@
 
 import { motion } from 'framer-motion'
 import { ArrowUpRight } from 'lucide-react'
+import Image from 'next/image'
 
 const projects = [
   {
     tag: 'Webové stránky',
     title: 'Kominictví Štěstí',
     description: 'Prémiový web pro kominický servis s důrazem na konverze a lokální SEO.',
+    image: '/projects/projekt-1.png',
+    tagColor: 'rgba(255,140,0,0.75)',
     featured: true,
-    accent: '#1a0d00',
-    accentGlow: 'rgba(255,140,0,0.08)',
-    tagColor: 'rgba(255,140,0,0.7)',
-    screens: [
-      { top: 8, left: 8, width: 84, height: 56, bg: '#0d0800', bars: ['rgba(255,140,0,0.4)', 'rgba(255,255,255,0.08)', 'rgba(255,255,255,0.06)'] },
-      { top: 20, left: 55, width: 42, height: 32, bg: '#1a0c00', bars: ['rgba(255,140,0,0.25)', 'rgba(255,255,255,0.06)'] },
-    ],
+    href: '#',
   },
   {
     tag: 'Webové stránky',
     title: 'Rashid Kenya Adventures',
     description: 'Luxusní safari web s cinematic hero a rezervačním systémem.',
+    image: '/projects/projekt-2.png',
+    tagColor: 'rgba(212,164,95,0.75)',
     featured: false,
-    accent: '#0d0a00',
-    accentGlow: 'rgba(184,136,58,0.08)',
-    tagColor: 'rgba(212,164,95,0.7)',
-    screens: [
-      { top: 8, left: 8, width: 84, height: 56, bg: '#0a0800', bars: ['rgba(212,164,95,0.4)', 'rgba(255,255,255,0.06)', 'rgba(255,255,255,0.04)'] },
-    ],
+    href: '#',
   },
   {
     tag: 'Webová aplikace',
     title: 'Viktória Lashes',
     description: 'Prémiový rezervační systém pro lash studio s věrnostním programem.',
+    image: '/projects/projekt-3.png',
+    tagColor: 'rgba(220,80,160,0.75)',
     featured: false,
-    accent: '#0d0010',
-    accentGlow: 'rgba(220,80,160,0.08)',
-    tagColor: 'rgba(220,80,160,0.7)',
-    screens: [
-      { top: 8, left: 8, width: 84, height: 56, bg: '#0a0010', bars: ['rgba(220,80,160,0.4)', 'rgba(255,255,255,0.06)', 'rgba(255,255,255,0.04)'] },
-    ],
+    href: '#',
   },
 ]
-
-function MockScreen({ project }: { project: typeof projects[0] }) {
-  return (
-    <div className="w-full h-full flex items-center justify-center" style={{ background: '#080808' }}>
-      <div className="rounded-lg border border-white/5 overflow-hidden relative"
-        style={{ width: '78%', height: '78%', background: project.accent }}>
-        {/* Fake hero image area */}
-        <div className="absolute inset-0" style={{ background: `radial-gradient(ellipse at 60% 40%, ${project.accentGlow} 0%, transparent 70%)` }} />
-        {/* Nav bar */}
-        <div className="absolute top-0 left-0 right-0 flex items-center justify-between px-3 py-2 border-b border-white/5" style={{ background: 'rgba(0,0,0,0.4)' }}>
-          <div className="h-2 w-14 rounded-full" style={{ background: 'rgba(255,255,255,0.15)' }} />
-          <div className="flex gap-2">
-            {[1,2,3,4].map(i => <div key={i} className="h-1.5 w-8 rounded-full" style={{ background: 'rgba(255,255,255,0.08)' }} />)}
-          </div>
-          <div className="h-2 w-12 rounded-full" style={{ background: project.tagColor }} />
-        </div>
-        {/* Big headline area */}
-        <div className="absolute top-10 left-4 right-16">
-          <div className="h-4 rounded mb-2" style={{ width: '85%', background: 'rgba(255,255,255,0.18)' }} />
-          <div className="h-4 rounded mb-2" style={{ width: '70%', background: project.tagColor, opacity: 0.7 }} />
-          <div className="h-4 rounded mb-4" style={{ width: '55%', background: 'rgba(255,255,255,0.1)' }} />
-          <div className="h-2 rounded mb-1" style={{ width: '90%', background: 'rgba(255,255,255,0.05)' }} />
-          <div className="h-2 rounded mb-4" style={{ width: '75%', background: 'rgba(255,255,255,0.04)' }} />
-          <div className="flex gap-2 mt-3">
-            <div className="h-5 w-20 rounded-full" style={{ background: project.tagColor, opacity: 0.85 }} />
-            <div className="h-5 w-20 rounded-full border" style={{ borderColor: 'rgba(255,255,255,0.12)' }} />
-          </div>
-        </div>
-        {/* Stats bar bottom */}
-        <div className="absolute bottom-0 left-0 right-0 flex gap-4 px-4 py-2 border-t border-white/5">
-          {[1,2,3,4].map(i => (
-            <div key={i}>
-              <div className="h-3 w-8 rounded mb-0.5" style={{ background: project.tagColor, opacity: 0.5 }} />
-              <div className="h-1.5 w-12 rounded" style={{ background: 'rgba(255,255,255,0.06)' }} />
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  )
-}
 
 export function ProjectsSection() {
   return (
@@ -95,12 +45,14 @@ export function ProjectsSection() {
         className="flex items-end justify-between mb-10"
       >
         <div>
-          <p className="text-[9px] tracking-[0.18em] uppercase mb-4" style={{ color: 'rgba(212,164,95,0.7)' }}>Vybrané projekty</p>
+          <p className="text-[9px] tracking-[0.18em] uppercase mb-4" style={{ color: 'rgba(212,164,95,0.7)' }}>
+            Vybrané projekty
+          </p>
           <h2 className="font-black tracking-tight text-white" style={{ fontSize: 'clamp(1.6rem,3vw,2.4rem)', letterSpacing: '-0.03em' }}>
             Projekty, na které jsem hrdý.
           </h2>
         </div>
-        <a href="#kontakt" className="text-[9px] tracking-[0.12em] uppercase flex items-center gap-1.5 transition-colors" style={{ color: 'rgba(255,255,255,0.3)' }}>
+        <a href="#kontakt" className="text-[9px] tracking-[0.12em] uppercase flex items-center gap-1.5 transition-colors hover:text-white" style={{ color: 'rgba(255,255,255,0.3)' }}>
           Domluvit projekt <ArrowUpRight size={12} />
         </a>
       </motion.div>
@@ -111,19 +63,26 @@ export function ProjectsSection() {
             key={project.title}
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.2 }}
+            viewport={{ once: true, amount: 0.15 }}
             transition={{ duration: 0.6, delay: i * 0.1 }}
             className={`rounded-2xl overflow-hidden group cursor-pointer ${project.featured ? 'md:col-span-2' : ''}`}
-            style={{
-              background: 'rgba(255,255,255,0.03)',
-              border: '1px solid rgba(255,255,255,0.07)',
-            }}
+            style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}
             whileHover={{ borderColor: 'rgba(255,255,255,0.14)' }}
           >
             {/* Screenshot */}
-            <div className="relative overflow-hidden" style={{ height: project.featured ? 280 : 180 }}>
-              <MockScreen project={project} />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent pointer-events-none" />
+            <div
+              className="relative overflow-hidden"
+              style={{ height: project.featured ? 320 : 200 }}
+            >
+              <Image
+                src={project.image}
+                alt={project.title}
+                fill
+                className="object-cover object-top transition-transform duration-700 group-hover:scale-[1.03]"
+                sizes={project.featured ? '100vw' : '50vw'}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-transparent pointer-events-none" />
             </div>
 
             {/* Meta */}
@@ -132,11 +91,11 @@ export function ProjectsSection() {
                 <p className="text-[9px] tracking-[0.14em] uppercase mb-1.5" style={{ color: project.tagColor }}>
                   {project.tag}
                 </p>
-                <h3 className="text-sm font-bold text-white tracking-tight">{project.title}</h3>
-                <p className="text-[11px] mt-1" style={{ color: 'rgba(255,255,255,0.35)' }}>{project.description}</p>
+                <h3 className="text-sm font-bold text-white tracking-tight mb-1">{project.title}</h3>
+                <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.35)' }}>{project.description}</p>
               </div>
               <div
-                className="w-8 h-8 rounded-full border flex items-center justify-center flex-shrink-0 ml-4 transition-all duration-300 group-hover:border-gold/30 group-hover:text-gold"
+                className="w-8 h-8 rounded-full border flex items-center justify-center flex-shrink-0 ml-4 transition-all duration-300 group-hover:text-gold"
                 style={{ borderColor: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.4)' }}
               >
                 <ArrowUpRight size={14} />
