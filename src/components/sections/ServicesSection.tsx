@@ -267,6 +267,123 @@ function ScrollingCards({ onActiveChange }: { onActiveChange: (d: typeof data[0]
   )
 }
 
+function ProcessSteps() {
+  const steps = [
+    { num: '01', title: 'Analýza',  desc: 'Pochopíme váš byznys, cíle a zákazníky. Definujeme co projekt potřebuje.', time: '1–2 dny' },
+    { num: '02', title: 'Návrh',    desc: 'Wireframy, design systém a prototyp v Figmě. Vy schválíte před vývojem.', time: '3–7 dní' },
+    { num: '03', title: 'Vývoj',    desc: 'Implementace v Next.js, databázi a API. Průběžné preview na každý commit.', time: '2–8 týdnů' },
+    { num: '04', title: 'Launch',   desc: 'Deploy na Vercel, testy rychlosti, SEO a finální optimalizace.', time: '2–3 dny' },
+    { num: '05', title: 'Růst',     desc: 'Analytics, A/B testy a průběžná vylepšení. Jste v dobrých rukou.', time: 'Ongoing' },
+  ]
+  const [activeStep, setActiveStep] = useState(0)
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  useEffect(() => {
+    intervalRef.current = setInterval(() => {
+      setActiveStep(prev => (prev + 1) % steps.length)
+    }, 2200)
+    return () => { if (intervalRef.current) clearInterval(intervalRef.current) }
+  }, [])
+
+  const handleClick = (i: number) => {
+    setActiveStep(i)
+    if (intervalRef.current) clearInterval(intervalRef.current)
+    intervalRef.current = setInterval(() => {
+      setActiveStep(prev => (prev + 1) % steps.length)
+    }, 2200)
+  }
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '72px 56px', position: 'relative', overflow: 'hidden' }}>
+      {/* Background number */}
+      <div style={{ position: 'absolute', top: '50%', right: -20, transform: 'translateY(-50%)', fontSize: 180, fontWeight: 900, color: 'rgba(255,255,255,0.02)', letterSpacing: '-0.06em', lineHeight: 1, pointerEvents: 'none', userSelect: 'none' }}>
+        {steps[activeStep].num}
+      </div>
+
+      <p style={{ fontSize: 8, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(212,164,95,0.7)', marginBottom: 28, display: 'flex', alignItems: 'center', gap: 8 }}>
+        <span style={{ width: 14, height: 1, background: 'rgba(212,164,95,0.5)', display: 'inline-block' }} />
+        Jak to probíhá
+      </p>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 0, position: 'relative', zIndex: 2 }}>
+        {steps.map((step, i) => (
+          <div
+            key={step.num}
+            onClick={() => handleClick(i)}
+            style={{
+              display: 'grid',
+              gridTemplateColumns: '44px 1fr auto',
+              gap: 16,
+              alignItems: 'flex-start',
+              padding: '18px 0',
+              borderBottom: '1px solid rgba(255,255,255,0.04)',
+              cursor: 'pointer',
+              opacity: activeStep === i ? 1 : 0.3,
+              transition: 'opacity 0.4s ease',
+            }}
+          >
+            {/* Number circle */}
+            <div style={{
+              width: 36, height: 36,
+              borderRadius: '50%',
+              border: `1px solid ${activeStep === i ? 'rgba(212,164,95,0.4)' : 'rgba(255,255,255,0.1)'}`,
+              background: activeStep === i ? 'rgba(212,164,95,0.1)' : 'transparent',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: 9, fontWeight: 700,
+              color: activeStep === i ? 'rgba(212,164,95,0.9)' : 'rgba(255,255,255,0.3)',
+              flexShrink: 0,
+              transition: 'all 0.4s ease',
+            }}>
+              {step.num}
+            </div>
+
+            {/* Content */}
+            <div>
+              <div style={{ fontSize: 14, fontWeight: 800, color: activeStep === i ? '#fff' : 'rgba(255,255,255,0.6)', letterSpacing: '-0.02em', marginBottom: activeStep === i ? 6 : 0, transition: 'all 0.4s ease' }}>
+                {step.title}
+              </div>
+              <div style={{
+                fontSize: 11,
+                color: 'rgba(255,255,255,0.32)',
+                lineHeight: 1.65,
+                maxHeight: activeStep === i ? 80 : 0,
+                overflow: 'hidden',
+                transition: 'max-height 0.4s ease, opacity 0.4s ease',
+                opacity: activeStep === i ? 1 : 0,
+              }}>
+                {step.desc}
+              </div>
+            </div>
+
+            {/* Time */}
+            <div style={{
+              fontSize: 8,
+              letterSpacing: '0.08em',
+              color: activeStep === i ? 'rgba(212,164,95,0.6)' : 'rgba(255,255,255,0.15)',
+              paddingTop: 10,
+              flexShrink: 0,
+              transition: 'color 0.4s ease',
+            }}>
+              {step.time}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Progress bar */}
+      <div style={{ height: 1, background: 'rgba(255,255,255,0.05)', marginTop: 24, borderRadius: 1, overflow: 'hidden' }}>
+        <div style={{
+          height: '100%',
+          background: 'linear-gradient(90deg, #D4A45F, rgba(212,164,95,0.4))',
+          width: `${((activeStep + 1) / steps.length) * 100}%`,
+          transition: 'width 0.4s ease',
+          borderRadius: 1,
+        }} />
+      </div>
+    </div>
+  )
+}
+
 export function ServicesSection() {
   const [active, setActive] = useState(data[0])
   const [panelFade, setPanelFade] = useState(false)
@@ -351,28 +468,26 @@ export function ServicesSection() {
         </div>
       </div>
 
-      {/* ── BOTTOM ROW: text LEFT + orbital RIGHT — same row ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', borderTop: '1px solid rgba(255,255,255,0.05)', minHeight: 500 }}>
+      {/* ── BOTTOM ROW: outro left + process steps right ── */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', borderTop: '1px solid rgba(255,255,255,0.05)', minHeight: 520 }}>
 
         {/* Left — quote + outro */}
-        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '64px', borderRight: '1px solid rgba(255,255,255,0.05)' }}>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: 20, marginBottom: 56 }}>
-            <div style={{ width: 22, height: 1, background: 'rgba(212,164,95,0.4)', flexShrink: 0 }} />
-            <p style={{ fontSize: 13, fontWeight: 300, color: 'rgba(255,255,255,0.22)', letterSpacing: '0.03em', fontStyle: 'italic', lineHeight: 1.6 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '72px 64px', borderRight: '1px solid rgba(255,255,255,0.05)' }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 16, marginBottom: 52 }}>
+            <div style={{ width: 22, height: 1, background: 'rgba(212,164,95,0.4)', flexShrink: 0, marginTop: 10 }} />
+            <p style={{ fontSize: 14, fontWeight: 300, color: 'rgba(255,255,255,0.22)', letterSpacing: '0.02em', fontStyle: 'italic', lineHeight: 1.7 }}>
               Technologie je jen nástroj —{' '}<strong style={{ color: 'rgba(212,164,95,0.55)', fontStyle: 'normal', fontWeight: 600 }}>výsledek je to, co počítá</strong>
             </p>
           </div>
-
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7 }}>
-            <h3 style={{ fontSize: 'clamp(22px,2.8vw,36px)', fontWeight: 900, letterSpacing: '-0.04em', color: '#fff', lineHeight: 1.08, marginBottom: 14 }}>
+            <h3 style={{ fontSize: 'clamp(24px,3vw,38px)', fontWeight: 900, letterSpacing: '-0.04em', color: '#fff', lineHeight: 1.06, marginBottom: 16 }}>
               Máte projekt<br />v hlavě?{' '}<span style={{ color: '#D4A45F' }}>Pojďme na to.</span>
             </h3>
-            <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.32)', lineHeight: 1.78, marginBottom: 28, maxWidth: 380 }}>
+            <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.32)', lineHeight: 1.8, marginBottom: 32, maxWidth: 360 }}>
               První konzultace je zdarma. Řeknete mi o projektu, já řeknu jak na to — bez závazků, bez bullshitu.
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 12 }}>
-              <a href="#kontakt" style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: '#D4A45F', color: '#090909', fontSize: 10, fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase', padding: '13px 26px', borderRadius: 40, boxShadow: '0 4px 24px rgba(212,164,95,0.25)', textDecoration: 'none' }}>
+              <a href="#kontakt" style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: '#D4A45F', color: '#090909', fontSize: 10, fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase', padding: '13px 28px', borderRadius: 40, boxShadow: '0 4px 24px rgba(212,164,95,0.25)', textDecoration: 'none' }}>
                 Domluvit konzultaci ↗
               </a>
               <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.15)', letterSpacing: '0.08em' }}>Obvykle odpovídám do 24 hodin</span>
@@ -380,11 +495,11 @@ export function ServicesSection() {
           </motion.div>
         </div>
 
-        {/* Right — orbital fills the grid cell */}
-        <OrbitalCanvas style={{ minHeight: 500 }} />
+        {/* Right — animated process steps */}
+        <ProcessSteps />
       </div>
 
-      <style>{`@keyframes svcMarquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }`}</style>
+<style>{`@keyframes svcMarquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }`}</style>
     </section>
   )
 }
