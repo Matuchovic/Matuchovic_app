@@ -4,162 +4,166 @@ import { useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
 
 const techCoins = [
-  { id: 'next',      label: 'Next.js',    bg: 'radial-gradient(135deg at 30% 30%,#1a1a1a,#000)',       x: 8,  y: 12, size: 72, depth: 1.0, phase: 0,   icon: 'N' },
-  { id: 'react',     label: 'React',      bg: 'radial-gradient(135deg at 30% 30%,#0d2137,#061220)',     x: 78, y: 8,  size: 60, depth: 0.7, phase: 1.2, icon: '⚛' },
-  { id: 'ts',        label: 'TypeScript', bg: 'radial-gradient(135deg at 30% 30%,#1a3a5c,#0d2137)',     x: 82, y: 55, size: 56, depth: 0.6, phase: 2.4, icon: 'TS' },
-  { id: 'tailwind',  label: 'Tailwind',   bg: 'radial-gradient(135deg at 30% 30%,#0d2a2e,#061518)',     x: 5,  y: 60, size: 64, depth: 0.9, phase: 0.8, icon: 'TW' },
-  { id: 'prisma',    label: 'Prisma',     bg: 'radial-gradient(135deg at 30% 30%,#1a1a2e,#0d0d1a)',     x: 16, y: 72, size: 54, depth: 0.5, phase: 3.1, icon: '◭' },
-  { id: 'gsap',      label: 'GSAP',       bg: 'radial-gradient(135deg at 30% 30%,#1a2e1a,#0d1a0d)',     x: 74, y: 70, size: 52, depth: 0.65,phase: 1.8, icon: 'GS' },
-  { id: 'supabase',  label: 'Supabase',   bg: 'radial-gradient(135deg at 30% 30%,#0d2a1a,#061510)',     x: 42, y: 80, size: 60, depth: 0.8, phase: 2.8, icon: '⚡' },
-  { id: 'vercel',    label: 'Vercel',     bg: 'radial-gradient(135deg at 30% 30%,#1a1a1a,#080808)',     x: 88, y: 30, size: 50, depth: 0.55,phase: 0.4, icon: '▲' },
-  { id: 'figma',     label: 'Figma',      bg: 'radial-gradient(135deg at 30% 30%,#2a1a1a,#1a0d0d)',     x: 2,  y: 35, size: 50, depth: 0.6, phase: 2.0, icon: 'F' },
-  { id: 'threejs',   label: 'Three.js',   bg: 'radial-gradient(135deg at 30% 30%,#1a1a1a,#050505)',     x: 28, y: 8,  size: 56, depth: 0.75,phase: 1.5, icon: '3D' },
+  { id: 'next',     icon: 'N',   label: 'Next.js',    size: 70, x: 52, y: 6,  phase: 0,   speed: 0.9,  depth: 1.0  },
+  { id: 'react',    icon: '⚛',   label: 'React',      size: 58, x: 16, y: 14, phase: 1.3, speed: 1.1,  depth: 0.75 },
+  { id: 'ts',       icon: 'TS',  label: 'TypeScript', size: 54, x: 74, y: 32, phase: 2.1, speed: 0.85, depth: 0.85 },
+  { id: 'tailwind', icon: 'TW',  label: 'Tailwind',   size: 62, x: 34, y: 48, phase: 0.7, speed: 1.0,  depth: 0.9  },
+  { id: 'supabase', icon: '⚡',  label: 'Supabase',   size: 50, x: 6,  y: 56, phase: 3.0, speed: 1.15, depth: 0.6  },
+  { id: 'prisma',   icon: '◭',   label: 'Prisma',     size: 46, x: 64, y: 62, phase: 1.8, speed: 0.95, depth: 0.55 },
+  { id: 'gsap',     icon: 'GS',  label: 'GSAP',       size: 44, x: 84, y: 10, phase: 2.5, speed: 1.05, depth: 0.65 },
+  { id: 'vercel',   icon: '▲',   label: 'Vercel',     size: 42, x: 22, y: 74, phase: 0.4, speed: 1.2,  depth: 0.5  },
+  { id: 'threejs',  icon: '3D',  label: 'Three.js',   size: 48, x: 48, y: 76, phase: 1.6, speed: 0.88, depth: 0.7  },
+  { id: 'figma',    icon: 'F',   label: 'Figma',      size: 38, x: 86, y: 54, phase: 2.8, speed: 1.1,  depth: 0.45 },
 ]
 
 export function HeroSection() {
-  const sceneRef = useRef<HTMLDivElement>(null)
-  const mouseRef = useRef({ x: 0.5, y: 0.5 })
-  const coinsRef = useRef<{ el: HTMLDivElement; coin: typeof techCoins[0]; currentScale: number; rotX: number; rotY: number }[]>([])
-  const rafRef = useRef<number>()
+  const heroRef = useRef<HTMLElement>(null)
+  const noiseCanvasRef = useRef<HTMLCanvasElement>(null)
+  const coinsContainerRef = useRef<HTMLDivElement>(null)
+  const frameRef = useRef<number>()
+  const noiseFrameRef = useRef<number>()
 
   useEffect(() => {
-    const scene = sceneRef.current
-    if (!scene) return
-
-    const onMove = (e: MouseEvent) => {
-      const r = scene.getBoundingClientRect()
-      mouseRef.current = {
-        x: (e.clientX - r.left) / r.width,
-        y: (e.clientY - r.top) / r.height,
+    const canvas = noiseCanvasRef.current
+    if (!canvas) return
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
+    let imageData: ImageData
+    let w = 0, h = 0, lastNoise = 0
+    const resizeNoise = () => {
+      w = canvas.width = canvas.offsetWidth
+      h = canvas.height = canvas.offsetHeight
+      imageData = ctx.createImageData(w, h)
+    }
+    resizeNoise()
+    const ro = new ResizeObserver(resizeNoise)
+    ro.observe(canvas)
+    const renderNoise = (ts: number) => {
+      if (ts - lastNoise >= 55) {
+        const d = imageData.data
+        for (let i = 0; i < d.length; i += 4) {
+          const v = (Math.random() * 255) | 0
+          d[i] = v; d[i + 1] = v; d[i + 2] = v
+          d[i + 3] = (Math.random() * 0.08 * 255) | 0
+        }
+        ctx.putImageData(imageData, 0, 0)
+        lastNoise = ts
       }
+      noiseFrameRef.current = requestAnimationFrame(renderNoise)
     }
-    scene.addEventListener('mousemove', onMove)
-
-    let t = 0
-    const animate = () => {
-      t += 0.008
-      const { x: mx, y: my } = mouseRef.current
-      const w = scene.offsetWidth
-      const h = scene.offsetHeight
-
-      coinsRef.current.forEach(({ el, coin, currentScale, rotX, rotY }, i) => {
-        const floatX = Math.sin(t * 0.6 + coin.phase) * 1.8
-        const floatY = Math.cos(t * 0.5 + coin.phase * 1.3) * 2.2
-        const parallaxX = (mx - 0.5) * -18 * coin.depth
-        const parallaxY = (my - 0.5) * -14 * coin.depth
-        const tx = coin.x + floatX + parallaxX
-        const ty = coin.y + floatY + parallaxY
-        const targetRX = (my - 0.5) * -20
-        const targetRY = (mx - 0.5) * 20
-        coinsRef.current[i].rotX += (targetRX - rotX) * 0.05
-        coinsRef.current[i].rotY += (targetRY - rotY) * 0.05
-        const blur = (1 - coin.depth) * 0.8
-        const brightness = 0.75 + coin.depth * 0.35
-        el.style.left = tx + '%'
-        el.style.top = ty + '%'
-        el.style.transform = `perspective(500px) rotateX(${coinsRef.current[i].rotX}deg) rotateY(${coinsRef.current[i].rotY}deg) scale(${coinsRef.current[i].currentScale})`
-        el.style.filter = `blur(${blur}px) brightness(${brightness})`
-        el.style.opacity = String(0.5 + coin.depth * 0.5)
-      })
-      rafRef.current = requestAnimationFrame(animate)
-    }
-    rafRef.current = requestAnimationFrame(animate)
-
-    return () => {
-      scene.removeEventListener('mousemove', onMove)
-      if (rafRef.current) cancelAnimationFrame(rafRef.current)
-    }
+    noiseFrameRef.current = requestAnimationFrame(renderNoise)
+    return () => { ro.disconnect(); if (noiseFrameRef.current) cancelAnimationFrame(noiseFrameRef.current) }
   }, [])
 
+  useEffect(() => {
+    const container = coinsContainerRef.current
+    if (!container) return
+    const coinEls: { wrap: HTMLDivElement; inner: HTMLDivElement; coin: typeof techCoins[0]; rotY: number; tRotY: number; t: number; phase: number }[] = []
+
+    techCoins.forEach((coin) => {
+      const wrap = document.createElement('div')
+      wrap.style.cssText = `position:absolute;width:${coin.size}px;height:${coin.size}px;left:${coin.x}%;top:${coin.y}%;border-radius:50%;cursor:pointer;perspective:600px;z-index:4;`
+      const inner = document.createElement('div')
+      inner.style.cssText = `width:100%;height:100%;transform-style:preserve-3d;border-radius:50%;`
+
+      const makeFace = (isFront: boolean) => {
+        const face = document.createElement('div')
+        face.style.cssText = `position:absolute;inset:0;border-radius:50%;backface-visibility:hidden;-webkit-backface-visibility:hidden;display:flex;align-items:center;justify-content:center;overflow:hidden;background:radial-gradient(135deg at ${isFront?'30% 30%':'70% 70%'},#1c1c1c,#080808);border:1px solid rgba(255,255,255,0.1);box-shadow:0 8px 28px rgba(0,0,0,0.6),inset 0 1px 0 rgba(255,255,255,0.1);${!isFront?'transform:rotateY(180deg);':''}`
+        const cv = document.createElement('canvas')
+        cv.width = coin.size; cv.height = coin.size
+        cv.style.cssText = `position:absolute;inset:0;border-radius:50%;mix-blend-mode:screen;pointer-events:none;z-index:3;`
+        const cctx = cv.getContext('2d')!
+        let lastCN = 0
+        const cnLoop = (ts: number) => {
+          if (ts - lastCN >= 55) {
+            const img = cctx.createImageData(coin.size, coin.size)
+            const d = img.data
+            for (let i = 0; i < d.length; i += 4) {
+              const v = (Math.random() * 255) | 0
+              d[i] = v; d[i+1] = v; d[i+2] = v
+              d[i+3] = (Math.random() * 0.08 * 255) | 0
+            }
+            cctx.putImageData(img, 0, 0)
+            lastCN = ts
+          }
+          requestAnimationFrame(cnLoop)
+        }
+        requestAnimationFrame(cnLoop)
+        const sheen = document.createElement('div')
+        sheen.style.cssText = `position:absolute;top:-25%;${isFront?'left':'right'}:-15%;width:55%;height:55%;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,0.12) 0%,transparent 70%);pointer-events:none;z-index:4;`
+        const ic = document.createElement('div')
+        ic.style.cssText = `font-family:Inter,sans-serif;font-weight:800;font-size:${Math.round(coin.size*(isFront?0.26:0.16))}px;color:rgba(255,255,255,${isFront?0.78:0.65});position:relative;z-index:5;${!isFront?'letter-spacing:0.04em;text-align:center;line-height:1.3;':''}`
+        ic.textContent = isFront ? coin.icon : coin.label
+        face.appendChild(cv); face.appendChild(sheen); face.appendChild(ic)
+        return face
+      }
+
+      inner.appendChild(makeFace(true)); inner.appendChild(makeFace(false)); wrap.appendChild(inner)
+      const lbl = document.createElement('div')
+      lbl.textContent = coin.label
+      lbl.style.cssText = `position:absolute;bottom:-20px;left:50%;transform:translateX(-50%);font-size:7px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.22);white-space:nowrap;font-family:Inter,sans-serif;transition:color 0.2s;`
+      wrap.appendChild(lbl); container.appendChild(wrap)
+      const state = { wrap, inner, coin, rotY: 0, tRotY: 0, t: Math.random() * 100, phase: coin.phase }
+      wrap.addEventListener('mouseenter', () => { state.tRotY = 180; wrap.style.zIndex = '9'; lbl.style.color = 'rgba(255,255,255,0.5)' })
+      wrap.addEventListener('mouseleave', () => { state.tRotY = 0; wrap.style.zIndex = '4'; lbl.style.color = 'rgba(255,255,255,0.22)' })
+      coinEls.push(state)
+    })
+
+    const animate = () => {
+      coinEls.forEach((s) => {
+        s.t += 0.008
+        const floatX = Math.sin(s.t * s.coin.speed * 0.55 + s.phase) * 1.5
+        const floatY = Math.cos(s.t * s.coin.speed * 0.45 + s.phase * 1.2) * 2.2
+        s.rotY += (s.tRotY - s.rotY) * 0.1
+        s.wrap.style.left = (s.coin.x + floatX) + '%'
+        s.wrap.style.top = (s.coin.y + floatY) + '%'
+        s.inner.style.transform = `rotateY(${s.rotY}deg)`
+        s.wrap.style.filter = `blur(${(1-s.coin.depth)*0.5}px) brightness(${0.65+s.coin.depth*0.45})`
+        s.wrap.style.opacity = String(0.4 + s.coin.depth * 0.6)
+      })
+      frameRef.current = requestAnimationFrame(animate)
+    }
+    frameRef.current = requestAnimationFrame(animate)
+    return () => { if (frameRef.current) cancelAnimationFrame(frameRef.current); container.innerHTML = '' }
+  }, [])
+
+  const fade = { initial: { opacity: 0, y: 28 }, animate: { opacity: 1, y: 0 } }
+
   return (
-    <section ref={sceneRef} className="relative min-h-screen overflow-hidden" style={{ background: '#090909' }}>
+    <section ref={heroRef} className="relative min-h-screen overflow-hidden flex flex-col" style={{ background: '#090909' }}>
+      <canvas ref={noiseCanvasRef} className="absolute inset-0 w-full h-full pointer-events-none" style={{ mixBlendMode: 'screen', zIndex: 1 }} aria-hidden="true" />
+      <div className="absolute inset-x-0 top-0 h-32 pointer-events-none z-10" style={{ background: 'linear-gradient(to bottom,#090909,transparent)' }} />
+      <div className="absolute inset-x-0 bottom-0 h-48 pointer-events-none z-10" style={{ background: 'linear-gradient(to top,#090909,transparent)' }} />
+      <div className="absolute inset-y-0 left-0 w-24 pointer-events-none z-10" style={{ background: 'linear-gradient(to right,#090909,transparent)' }} />
+      <div className="absolute inset-y-0 right-0 w-16 pointer-events-none z-10" style={{ background: 'linear-gradient(to left,#090909,transparent)' }} />
+      <div className="absolute pointer-events-none z-0" style={{ width:500,height:300,borderRadius:'50%',background:'radial-gradient(ellipse,rgba(212,164,95,0.05) 0%,transparent 65%)',top:'50%',left:'50%',transform:'translate(-50%,-50%)' }} />
 
-      {/* Noise */}
-      <div className="absolute inset-0 pointer-events-none z-10" style={{ opacity: 0.05, mixBlendMode: 'overlay', backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`, backgroundSize: '180px' }} />
-
-      {/* Fades */}
-      <div className="absolute inset-x-0 top-0 h-32 pointer-events-none z-10" style={{ background: 'linear-gradient(to bottom, #090909, transparent)' }} />
-      <div className="absolute inset-x-0 bottom-0 h-48 pointer-events-none z-10" style={{ background: 'linear-gradient(to top, #090909, transparent)' }} />
-      <div className="absolute inset-y-0 left-0 w-24 pointer-events-none z-10" style={{ background: 'linear-gradient(to right, #090909, transparent)' }} />
-      <div className="absolute inset-y-0 right-0 w-24 pointer-events-none z-10" style={{ background: 'linear-gradient(to left, #090909, transparent)' }} />
-
-      {/* Ambient glow */}
-      <div className="absolute pointer-events-none z-0" style={{ width: 500, height: 300, borderRadius: '50%', background: 'radial-gradient(ellipse, rgba(212,164,95,0.05) 0%, transparent 65%)', top: '50%', left: '50%', transform: 'translate(-50%,-50%)' }} />
-
-      {/* Tech coins */}
-      {techCoins.map((coin, i) => (
-        <div
-          key={coin.id}
-          ref={el => {
-            if (el) coinsRef.current[i] = { el, coin, currentScale: 1, rotX: 0, rotY: 0 }
-          }}
-          style={{
-            position: 'absolute',
-            width: coin.size,
-            height: coin.size,
-            borderRadius: '50%',
-            cursor: 'pointer',
-            zIndex: 4,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-          onMouseEnter={e => { coinsRef.current[i].currentScale = 1.15; (e.currentTarget as HTMLDivElement).style.zIndex = '8' }}
-          onMouseLeave={e => { coinsRef.current[i].currentScale = 1; (e.currentTarget as HTMLDivElement).style.zIndex = '4' }}
-        >
-          <div style={{ width: '100%', height: '100%', borderRadius: '50%', background: coin.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.12)' }}>
-            {/* Sheen */}
-            <div style={{ position: 'absolute', top: '-30%', left: '-20%', width: '60%', height: '60%', borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,255,255,0.16) 0%, transparent 70%)', pointerEvents: 'none' }} />
-            <span style={{ fontFamily: 'Inter, sans-serif', fontSize: coin.size * 0.24, fontWeight: 800, color: '#fff', letterSpacing: '-0.02em', position: 'relative', zIndex: 1 }}>
-              {coin.icon}
-            </span>
-          </div>
-          <div style={{ position: 'absolute', bottom: -22, left: '50%', transform: 'translateX(-50%)', fontSize: 9, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', whiteSpace: 'nowrap', fontFamily: 'Inter, sans-serif' }}>
-            {coin.label}
-          </div>
-        </div>
-      ))}
-
-      {/* Hero text */}
-      <div className="relative z-20 flex flex-1 items-center px-8 md:px-16 max-w-screen-2xl mx-auto w-full pb-24" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center' }}>
-        <div className="max-w-xl">
-          <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.1 }}
-            style={{ fontSize: 9, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', marginBottom: 24, display: 'flex', alignItems: 'center', gap: 12 }}>
-            <span style={{ width: 24, height: 1, background: 'rgba(212,164,95,0.5)', display: 'inline-block' }} />
-            Digitální studio
+      <div className="relative z-20 flex flex-1 items-center max-w-screen-2xl mx-auto w-full px-8 md:px-16" style={{ minHeight: '100vh' }}>
+        <div className="flex-1 max-w-xl">
+          <motion.p {...fade} transition={{ duration: 0.8, delay: 0.1 }} className="text-[9px] tracking-[0.2em] uppercase text-white/30 mb-6 flex items-center gap-3">
+            <span className="w-6 h-px bg-gold/50 inline-block" />Digitální studio
           </motion.p>
-
-          <motion.h1 initial={{ opacity: 0, y: 28 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.9, delay: 0.2 }}
-            style={{ fontWeight: 900, letterSpacing: '-0.04em', lineHeight: 1.02, color: '#fff', marginBottom: 20, fontSize: 'clamp(2.4rem, 5.5vw, 4.5rem)' }}>
-            Vytvářím digitální<br />
-            produkty, které<br />
-            <span style={{ color: '#D4A45F' }}>posouvají firmy<br />dopředu.</span>
+          <motion.h1 {...fade} transition={{ duration: 0.9, delay: 0.2 }} className="font-black tracking-tight leading-[1.02] text-white mb-5" style={{ fontSize: 'clamp(2.4rem,5.5vw,4.5rem)', letterSpacing: '-0.04em' }}>
+            Vytvářím digitální<br />produkty, které<br /><span className="text-gold">posouvají firmy<br />dopředu.</span>
           </motion.h1>
-
-          <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.35 }}
-            style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginBottom: 40, lineHeight: 1.7 }}>
+          <motion.p {...fade} transition={{ duration: 0.8, delay: 0.35 }} className="text-sm text-white/40 mb-10 leading-relaxed max-w-sm">
             Weby, webové aplikace, AI systémy<br />a automatizace na míru vašemu podnikání.
           </motion.p>
-
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.45 }}
-            style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
-            <a href="#kontakt" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#D4A45F', color: '#090909', fontWeight: 800, fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', padding: '12px 24px', borderRadius: 40, textDecoration: 'none' }}>
-              Domluvit konzultaci ↗
-            </a>
-            <a href="#projekty" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.45)', border: '1px solid rgba(255,255,255,0.12)', padding: '12px 20px', borderRadius: 40, textDecoration: 'none' }}>
-              Zobrazit projekty ↗
-            </a>
+          <motion.div {...fade} transition={{ duration: 0.8, delay: 0.45 }} className="flex items-center gap-4">
+            <a href="#kontakt" className="inline-flex items-center gap-2 bg-gold text-background font-bold text-[10px] tracking-[0.1em] uppercase px-6 py-3.5 rounded-full hover:bg-gold-light transition-colors duration-200">Domluvit konzultaci ↗</a>
+            <a href="#projekty" className="inline-flex items-center gap-2 text-[10px] font-semibold tracking-[0.1em] uppercase text-white/45 border border-white/12 px-5 py-3.5 rounded-full hover:text-white hover:border-white/25 transition-all duration-200">Zobrazit projekty ↗</a>
           </motion.div>
+        </div>
+        <div className="hidden lg:block relative flex-1" style={{ minHeight: '100vh' }}>
+          <div className="absolute inset-y-0 left-0 w-32 pointer-events-none z-10" style={{ background: 'linear-gradient(to right,#090909,transparent)' }} />
+          <div ref={coinsContainerRef} className="absolute inset-0" />
         </div>
       </div>
 
-      {/* Scroll indicator */}
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.2, duration: 0.8 }}
-        style={{ position: 'absolute', bottom: 40, left: '50%', transform: 'translateX(-50%)', zIndex: 20, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
-        <div style={{ width: 24, height: 24, borderRadius: '50%', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.25)', fontSize: 12 }}>+</div>
-        <span style={{ fontSize: 9, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.2)', fontFamily: 'Inter, sans-serif' }}>Scroll</span>
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.2, duration: 0.8 }} className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2">
+        <div className="w-6 h-6 rounded-full border border-white/15 flex items-center justify-center text-white/25 text-xs">+</div>
+        <span className="text-[9px] tracking-[0.16em] uppercase text-white/20">Scroll</span>
       </motion.div>
-
     </section>
   )
 }
