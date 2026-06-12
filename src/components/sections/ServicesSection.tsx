@@ -443,29 +443,10 @@ export function ServicesSection() {
         </div>
       </div>
 
-      {/* ── SCROLLING CARDS + PANEL ── */}
-      <div className="flex items-center" style={{ height: 520, borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+      {/* ── SCROLLING CARDS + PROCESS STEPS ── */}
+      <div style={{ display: 'grid', gridTemplateColumns: '300px 1fr', height: 520, borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
         <ScrollingCards onActiveChange={handleActiveChange} />
-        <div style={{ width: 1, height: 300, flexShrink: 0, background: 'linear-gradient(to bottom,transparent,rgba(255,255,255,0.07) 25%,rgba(255,255,255,0.07) 75%,transparent)' }} />
-        <div className="flex-1" style={{ padding: '0 40px 0 48px' }}>
-          <p style={{ fontSize: 8, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'rgba(212,164,95,0.7)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 10 }}>
-            <span style={{ width: 14, height: 1, background: 'rgba(212,164,95,0.5)', display: 'inline-block' }} />Specializace
-          </p>
-          <div style={{ transition: 'opacity 0.2s', opacity: panelFade ? 0 : 1 }}>
-            <div style={{ fontSize: 64, fontWeight: 900, letterSpacing: '-0.07em', color: 'rgba(255,255,255,0.04)', lineHeight: 1, marginBottom: -14 }}>{active.num}</div>
-            <h3 style={{ fontSize: 'clamp(22px,2.8vw,34px)', fontWeight: 900, letterSpacing: '-0.04em', lineHeight: 1.05, color: '#fff', marginBottom: 10 }}>{active.title}</h3>
-            <p style={{ fontSize: 8, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.2)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ width: 10, height: 1, background: 'rgba(255,255,255,0.2)', display: 'inline-block' }} />{active.time}
-            </p>
-            <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', lineHeight: 1.8, marginBottom: 16, maxWidth: 300 }}>{active.body}</p>
-            <div className="flex flex-wrap gap-1.5 mb-6">
-              {active.tags.map(t => <span key={t} style={{ fontSize: 8, padding: '3px 10px', borderRadius: 20, border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.28)' }}>{t}</span>)}
-            </div>
-          </div>
-          <a href="#kontakt" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: '#D4A45F', color: '#090909', fontSize: 9, fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', padding: '11px 22px', borderRadius: 40 }}>
-            Domluvit konzultaci ↗
-          </a>
-        </div>
+        <ProcessSteps />
       </div>
 
       {/* ── BOTTOM ROW: outro left + process steps right ── */}
