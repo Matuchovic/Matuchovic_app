@@ -351,21 +351,19 @@ export function ServicesSection() {
         </div>
       </div>
 
-      {/* ── BOTTOM ROW: quote + outro text LEFT, orbital RIGHT ── */}
-      <div className="flex" style={{ borderTop: '1px solid rgba(255,255,255,0.05)', minHeight: 480 }}>
+      {/* ── BOTTOM ROW: text LEFT + orbital RIGHT — same row ── */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', borderTop: '1px solid rgba(255,255,255,0.05)', minHeight: 500 }}>
 
         {/* Left — quote + outro */}
-        <div className="flex flex-col justify-center" style={{ flex: '0 0 50%', padding: '64px 64px 64px 64px', borderRight: '1px solid rgba(255,255,255,0.05)' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '64px', borderRight: '1px solid rgba(255,255,255,0.05)' }}>
 
-          {/* Divider quote */}
-          <div className="flex items-center gap-5 mb-16">
+          <div style={{ display: 'flex', alignItems: 'center', gap: 20, marginBottom: 56 }}>
             <div style={{ width: 22, height: 1, background: 'rgba(212,164,95,0.4)', flexShrink: 0 }} />
             <p style={{ fontSize: 13, fontWeight: 300, color: 'rgba(255,255,255,0.22)', letterSpacing: '0.03em', fontStyle: 'italic', lineHeight: 1.6 }}>
               Technologie je jen nástroj —{' '}<strong style={{ color: 'rgba(212,164,95,0.55)', fontStyle: 'normal', fontWeight: 600 }}>výsledek je to, co počítá</strong>
             </p>
           </div>
 
-          {/* Outro */}
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7 }}>
             <h3 style={{ fontSize: 'clamp(22px,2.8vw,36px)', fontWeight: 900, letterSpacing: '-0.04em', color: '#fff', lineHeight: 1.08, marginBottom: 14 }}>
               Máte projekt<br />v hlavě?{' '}<span style={{ color: '#D4A45F' }}>Pojďme na to.</span>
@@ -373,8 +371,8 @@ export function ServicesSection() {
             <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.32)', lineHeight: 1.78, marginBottom: 28, maxWidth: 380 }}>
               První konzultace je zdarma. Řeknete mi o projektu, já řeknu jak na to — bez závazků, bez bullshitu.
             </p>
-            <div className="flex flex-col items-start gap-3">
-              <a href="#kontakt" style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: '#D4A45F', color: '#090909', fontSize: 10, fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase', padding: '13px 26px', borderRadius: 40, boxShadow: '0 4px 24px rgba(212,164,95,0.25)' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 12 }}>
+              <a href="#kontakt" style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: '#D4A45F', color: '#090909', fontSize: 10, fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase', padding: '13px 26px', borderRadius: 40, boxShadow: '0 4px 24px rgba(212,164,95,0.25)', textDecoration: 'none' }}>
                 Domluvit konzultaci ↗
               </a>
               <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.15)', letterSpacing: '0.08em' }}>Obvykle odpovídám do 24 hodin</span>
@@ -382,11 +380,8 @@ export function ServicesSection() {
           </motion.div>
         </div>
 
-        {/* Right — orbital */}
-        <OrbitalCanvas
-          className="flex-1"
-          style={{ minHeight: 480 }}
-        />
+        {/* Right — orbital fills the grid cell */}
+        <OrbitalCanvas style={{ minHeight: 500 }} />
       </div>
 
       <style>{`@keyframes svcMarquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }`}</style>
