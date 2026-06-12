@@ -69,20 +69,20 @@ export function ProjectsSection() {
             style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}
             whileHover={{ borderColor: 'rgba(255,255,255,0.14)' }}
           >
-            {/* Screenshot */}
+            {/* Screenshot — přesný aspect ratio 16:9 (1.76:1) */}
             <div
-              className="relative overflow-hidden"
-              style={{ height: project.featured ? 320 : 200 }}
+              className="relative w-full overflow-hidden"
+              style={{ paddingBottom: '56.81%' }}
             >
               <Image
                 src={project.image}
                 alt={project.title}
                 fill
                 className="object-cover object-top transition-transform duration-700 group-hover:scale-[1.03]"
-                sizes={project.featured ? '100vw' : '50vw'}
+                sizes={project.featured ? '(max-width: 768px) 100vw, 100vw' : '(max-width: 768px) 100vw, 50vw'}
+                quality={90}
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
-              <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-transparent pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
             </div>
 
             {/* Meta */}
