@@ -514,7 +514,7 @@ function HologramCards() {
   }, [])
 
   return (
-    <div ref={containerRef} style={{ position: 'relative', overflow: 'hidden', borderLeft: '1px solid rgba(255,255,255,0.05)', cursor: 'crosshair' }}>
+    <div ref={containerRef} style={{ position: 'relative', overflow: 'hidden', borderLeft: '1px solid rgba(255,255,255,0.05)', cursor: 'crosshair', height: '100%', minHeight: 0 }}>
       <canvas ref={canvasRef} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }} />
     </div>
   )
