@@ -267,104 +267,259 @@ function ScrollingCards({ onActiveChange }: { onActiveChange: (d: typeof data[0]
   )
 }
 
-function ProcessSteps() {
-  const steps = [
-    { num: '01', title: 'Analýza',  desc: 'Pochopíme váš byznys a cíle.', time: '1–2 dny' },
-    { num: '02', title: 'Návrh',    desc: 'Wireframy a prototyp v Figmě.', time: '3–7 dní' },
-    { num: '03', title: 'Vývoj',    desc: 'Next.js, databáze, API.', time: '2–8 týdnů' },
-    { num: '04', title: 'Launch',   desc: 'Deploy, testy, optimalizace.', time: '2–3 dny' },
-    { num: '05', title: 'Růst',     desc: 'Analytics a vylepšení.', time: 'Ongoing' },
-  ]
-  const [activeStep, setActiveStep] = useState(0)
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+function HologramCards() {
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    intervalRef.current = setInterval(() => {
-      setActiveStep(prev => (prev + 1) % steps.length)
-    }, 2000)
-    return () => { if (intervalRef.current) clearInterval(intervalRef.current) }
+    const canvas = canvasRef.current
+    const container = containerRef.current
+    if (!canvas || !container) return
+    const ctx = canvas.getContext('2d')!
+    let W = 0, H = 0, raf: number
+    const mouse = { x: -999, y: -999 }
+
+    const resize = () => {
+      W = canvas.width = container.offsetWidth
+      H = canvas.height = container.offsetHeight
+    }
+    resize()
+    const ro = new ResizeObserver(resize)
+    ro.observe(container)
+
+    const onMove = (e: MouseEvent) => {
+      const r = container.getBoundingClientRect()
+      mouse.x = e.clientX - r.left
+      mouse.y = e.clientY - r.top
+    }
+    const onLeave = () => { mouse.x = -999; mouse.y = -999 }
+    container.addEventListener('mousemove', onMove)
+    container.addEventListener('mouseleave', onLeave)
+
+    const NODES = 24
+    const nodes = Array.from({ length: NODES }, () => {
+      const angle = Math.random() * Math.PI * 2
+      const radius = 35 + Math.random() * 95
+      return { angle, radius, baseRadius: radius, speed: (Math.random() - 0.5) * 0.009, vax: 0, vay: 0, size: Math.random() * 1.8 + 0.6, alpha: 0.2 + Math.random() * 0.45, gold: Math.random() < 0.35, px: 0, py: 0 }
+    })
+
+    const cards = [
+      { x: 0.08, y: 0.10, w: 200, h: 120, label: 'Zákazník rozhoduje za', big: '3s', body: 'Tři sekundy. Pak jde ke konkurenci.', acc: true },
+      { x: 0.60, y: 0.06, w: 188, h: 110, label: 'Šablona vs. na míru', quote: '"Na míru říká — jsme nejlepší volba."', acc: false },
+      { x: 0.04, y: 0.42, w: 175, h: 105, label: 'Spokojenost', big: '100%', body: 'Klientů kteří pochopili hodnotu.', acc: true },
+      { x: 0.64, y: 0.40, w: 182, h: 108, label: 'Srovnání s konkurencí', quote: '"Zákazník rozklikne 3–5 webů najednou."', acc: false },
+      { x: 0.06, y: 0.76, w: 210, h: 115, label: 'Web jako obchodník', title: 'Pracuje 24/7.', gold: 'Bez nemocenské.', acc: false },
+      { x: 0.60, y: 0.74, w: 185, h: 108, label: 'Performance', big: '0.8s', body: 'Každá sekunda = –7% konverzí.', acc: true },
+    ]
+    const cardStates = cards.map(c => ({ ...c, curX: 0, curY: 0, baseX: 0, baseY: 0, phase: Math.random() * Math.PI * 2, rotX: 0, rotY: 0, tX: 0, tY: 0, init: false }))
+
+    const lp = (a: number, b: number, f: number) => a + (b - a) * f
+    let t = 0
+
+    const draw = () => {
+      t += 0.008
+      ctx.clearRect(0, 0, W, H)
+      const cx = W / 2, cy = H / 2
+
+      const ag = ctx.createRadialGradient(cx, cy, 0, cx, cy, W * 0.4)
+      ag.addColorStop(0, 'rgba(212,164,95,0.05)'); ag.addColorStop(1, 'transparent')
+      ctx.fillStyle = ag; ctx.fillRect(0, 0, W, H)
+
+      if (mouse.x > 0) {
+        const mg = ctx.createRadialGradient(mouse.x, mouse.y, 0, mouse.x, mouse.y, 90)
+        mg.addColorStop(0, 'rgba(255,255,255,0.025)'); mg.addColorStop(1, 'transparent')
+        ctx.fillStyle = mg; ctx.fillRect(0, 0, W, H)
+      }
+
+      nodes.forEach(n => {
+        n.angle += n.speed
+        if (mouse.x > 0) {
+          const dx = mouse.x - cx, dy = mouse.y - cy
+          const md = Math.sqrt(dx * dx + dy * dy) / Math.min(W, H) * 2
+          const pull = Math.max(0, 1 - md) * 0.5
+          n.vax += (Math.cos(Math.atan2(dy, dx)) * pull - n.vax) * 0.03
+          n.vay += (Math.sin(Math.atan2(dy, dx)) * pull - n.vay) * 0.03
+        } else { n.vax *= 0.94; n.vay *= 0.94 }
+        n.radius = lp(n.radius, n.baseRadius + n.vax * 18, 0.05)
+        n.px = cx + Math.cos(n.angle) * n.radius + n.vax * 12
+        n.py = cy + Math.sin(n.angle) * n.radius * 0.58 + n.vay * 8
+      })
+
+      for (let i = 0; i < nodes.length; i++) {
+        for (let j = i + 1; j < nodes.length; j++) {
+          const a = nodes[i], b = nodes[j]
+          const dx = a.px - b.px, dy = a.py - b.py
+          const dist = Math.sqrt(dx * dx + dy * dy)
+          if (dist < 85) {
+            let alpha = (1 - dist / 85) * 0.16
+            const mx = (a.px + b.px) / 2, my = (a.py + b.py) / 2
+            if (mouse.x > 0 && Math.sqrt((mx - mouse.x) ** 2 + (my - mouse.y) ** 2) < 70) alpha *= 2.5
+            ctx.beginPath(); ctx.moveTo(a.px, a.py); ctx.lineTo(b.px, b.py)
+            ctx.strokeStyle = a.gold && b.gold ? `rgba(212,164,95,${alpha})` : `rgba(255,255,255,${alpha})`
+            ctx.lineWidth = 0.5; ctx.stroke()
+          }
+        }
+      }
+
+      ;[28, 50, 72].forEach((r, ri) => {
+        ctx.beginPath(); ctx.arc(cx, cy, r + Math.sin(t + ri) * 3, 0, Math.PI * 2)
+        ctx.strokeStyle = `rgba(212,164,95,${0.08 - ri * 0.02})`
+        ctx.lineWidth = 0.5; ctx.setLineDash([2, 6]); ctx.stroke(); ctx.setLineDash([])
+      })
+
+      const cg = ctx.createRadialGradient(cx, cy, 0, cx, cy, 10)
+      cg.addColorStop(0, `rgba(255,255,255,${0.8 + Math.sin(t * 2) * 0.12})`)
+      cg.addColorStop(0.4, `rgba(212,164,95,${0.85 + Math.sin(t * 2) * 0.1})`)
+      cg.addColorStop(1, 'transparent')
+      ctx.fillStyle = cg; ctx.shadowColor = '#D4A45F'; ctx.shadowBlur = 18
+      ctx.beginPath(); ctx.arc(cx, cy, 6, 0, Math.PI * 2); ctx.fill(); ctx.shadowBlur = 0
+      ctx.font = '700 7px Inter,sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
+      ctx.fillStyle = `rgba(255,255,255,${0.18 + Math.sin(t) * 0.04})`
+      ctx.fillText('MATUCHOVIC', cx, cy + 18)
+
+      nodes.forEach(n => {
+        ctx.beginPath(); ctx.arc(n.px, n.py, n.size, 0, Math.PI * 2)
+        ctx.fillStyle = n.gold ? `rgba(212,164,95,${n.alpha * 0.8})` : `rgba(255,255,255,${n.alpha * 0.35})`
+        if (n.gold) { ctx.shadowColor = '#D4A45F'; ctx.shadowBlur = 4 }
+        ctx.fill(); ctx.shadowBlur = 0
+      })
+
+      cardStates.forEach((c, ci) => {
+        if (!c.init) {
+          c.baseX = c.x * W; c.baseY = c.y * H
+          c.curX = c.baseX; c.curY = c.baseY; c.init = true
+        }
+        const fx = Math.sin(t * 0.55 + c.phase) * 7
+        const fy = Math.cos(t * 0.45 + c.phase * 1.3) * 10
+        let tx = c.baseX + fx, ty = c.baseY + fy
+        const ecx = tx + c.w / 2, ecy = ty + c.h / 2
+        const dx = ecx - mouse.x, dy = ecy - mouse.y
+        const dist = Math.sqrt(dx * dx + dy * dy)
+        if (dist < 130 && dist > 1) { const f = (130 - dist) / 130 * 8; tx += dx / dist * f; ty += dy / dist * f }
+        c.curX = lp(c.curX, tx, 0.05); c.curY = lp(c.curY, ty, 0.05)
+        c.rotX = lp(c.rotX, c.tX, 0.1); c.rotY = lp(c.rotY, c.tY, 0.1)
+
+        /* Draw card */
+        ctx.save()
+        ctx.translate(c.curX + c.w / 2, c.curY + c.h / 2)
+        const rx = c.rotX * Math.PI / 180 * 0.3
+        const ry = c.rotY * Math.PI / 180 * 0.3
+        ctx.transform(1, rx, -ry, 1, 0, 0)
+        ctx.translate(-c.w / 2, -c.h / 2)
+
+        /* Card bg */
+        ctx.beginPath()
+        const radius2 = 14
+        ctx.moveTo(radius2, 0); ctx.lineTo(c.w - radius2, 0)
+        ctx.quadraticCurveTo(c.w, 0, c.w, radius2)
+        ctx.lineTo(c.w, c.h - radius2); ctx.quadraticCurveTo(c.w, c.h, c.w - radius2, c.h)
+        ctx.lineTo(radius2, c.h); ctx.quadraticCurveTo(0, c.h, 0, c.h - radius2)
+        ctx.lineTo(0, radius2); ctx.quadraticCurveTo(0, 0, radius2, 0)
+        ctx.closePath()
+        ctx.fillStyle = 'rgba(255,255,255,0.026)'; ctx.fill()
+        ctx.strokeStyle = 'rgba(255,255,255,0.08)'; ctx.lineWidth = 1; ctx.stroke()
+
+        /* Accent line left */
+        if (c.acc) {
+          ctx.beginPath(); ctx.moveTo(0, c.h * 0.2); ctx.lineTo(0, c.h * 0.8)
+          ctx.strokeStyle = 'rgba(212,164,95,0.45)'; ctx.lineWidth = 2; ctx.stroke()
+        }
+
+        /* Top sheen */
+        const sheen = ctx.createLinearGradient(0, 0, c.w, 0)
+        sheen.addColorStop(0, 'transparent'); sheen.addColorStop(0.5, 'rgba(255,255,255,0.07)'); sheen.addColorStop(1, 'transparent')
+        ctx.beginPath(); ctx.rect(0, 0, c.w, 1); ctx.fillStyle = sheen; ctx.fill()
+
+        /* Text */
+        const px2 = 18, py2 = 16
+        ctx.font = '600 7px Inter,sans-serif'; ctx.textAlign = 'left'
+        ctx.fillStyle = 'rgba(255,255,255,0.22)'; ctx.fillText(c.label.toUpperCase(), px2, py2 + 5)
+
+        if (c.big) {
+          ctx.font = '900 32px Inter,sans-serif'
+          ctx.fillStyle = 'rgba(255,255,255,0.92)'
+          ctx.fillText(c.big, px2, py2 + 40)
+        }
+        if (c.title) {
+          ctx.font = '800 13px Inter,sans-serif'
+          ctx.fillStyle = 'rgba(255,255,255,0.88)'
+          ctx.fillText(c.title, px2, py2 + 32)
+          ctx.font = '700 13px Inter,sans-serif'
+          ctx.fillStyle = '#D4A45F'
+          ctx.fillText(c.gold || '', px2, py2 + 50)
+        }
+        if (c.quote) {
+          ctx.font = '300 10px Inter,sans-serif'; ctx.fillStyle = 'rgba(255,255,255,0.45)'
+          const words = c.quote.split(' ')
+          let line = '', lineY = py2 + 26
+          words.forEach(w => {
+            const test = line + w + ' '
+            if (ctx.measureText(test).width > c.w - px2 * 2 && line) {
+              ctx.fillText(line.trim(), px2, lineY); line = w + ' '; lineY += 16
+            } else line = test
+          })
+          if (line) ctx.fillText(line.trim(), px2, lineY)
+        }
+        if (c.body) {
+          const bodyY = c.big ? py2 + 58 : py2 + 48
+          ctx.font = '400 9px Inter,sans-serif'; ctx.fillStyle = 'rgba(255,255,255,0.3)'
+          ctx.fillText(c.body, px2, bodyY)
+        }
+
+        /* Progress bar */
+        ctx.beginPath(); ctx.rect(px2, c.h - 18, c.w - px2 * 2, 1)
+        ctx.fillStyle = 'rgba(255,255,255,0.05)'; ctx.fill()
+        ctx.beginPath(); ctx.rect(px2, c.h - 18, (c.w - px2 * 2) * 0.85, 1)
+        const pg = ctx.createLinearGradient(px2, 0, c.w - px2, 0)
+        pg.addColorStop(0, 'rgba(212,164,95,0.7)'); pg.addColorStop(1, 'rgba(212,164,95,0.1)')
+        ctx.fillStyle = pg; ctx.fill()
+
+        /* Connector to center */
+        ctx.setLineDash([3, 8])
+        const ecx2 = c.w / 2, ecy2 = c.h / 2
+        const dcx = -c.w / 2 + (cx - c.curX), dcy = -c.h / 2 + (cy - c.curY)
+        const dd = Math.sqrt(dcx * dcx + dcy * dcy)
+        if (dd > 0) {
+          ctx.beginPath(); ctx.moveTo(ecx2 + dcx / dd * (c.w * 0.3), ecy2 + dcy / dd * (c.h * 0.25))
+          ctx.lineTo(ecx2 + dcx / dd * Math.min(dd * 0.6, 200), ecy2 + dcy / dd * Math.min(dd * 0.6, 200))
+          ctx.strokeStyle = 'rgba(212,164,95,0.05)'; ctx.lineWidth = 0.5; ctx.stroke()
+        }
+        ctx.setLineDash([])
+
+        ctx.restore()
+      })
+
+      raf = requestAnimationFrame(draw)
+    }
+    draw()
+
+    const onCardMove = (e: MouseEvent) => {
+      const r = container.getBoundingClientRect()
+      const mx = e.clientX - r.left, my = e.clientY - r.top
+      cardStates.forEach(c => {
+        const dx = mx - (c.curX + c.w / 2), dy = my - (c.curY + c.h / 2)
+        if (Math.abs(dx) < c.w / 2 && Math.abs(dy) < c.h / 2) {
+          c.tX = (dy / c.h) * -12; c.tY = (dx / c.w) * 12
+        } else { c.tX *= 0.9; c.tY *= 0.9 }
+      })
+    }
+    container.addEventListener('mousemove', onCardMove)
+
+    return () => {
+      cancelAnimationFrame(raf); ro.disconnect()
+      container.removeEventListener('mousemove', onMove)
+      container.removeEventListener('mousemove', onCardMove)
+      container.removeEventListener('mouseleave', onLeave)
+    }
   }, [])
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '32px 40px', position: 'relative', overflow: 'hidden', borderLeft: '1px solid rgba(255,255,255,0.05)' }}>
-      {/* BG number */}
-      <div style={{ position: 'absolute', bottom: -20, right: -10, fontSize: 120, fontWeight: 900, color: 'rgba(255,255,255,0.02)', letterSpacing: '-0.06em', lineHeight: 1, pointerEvents: 'none', userSelect: 'none' }}>
-        {steps[activeStep].num}
-      </div>
-
-      <p style={{ fontSize: 8, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(212,164,95,0.6)', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 8 }}>
-        <span style={{ width: 12, height: 1, background: 'rgba(212,164,95,0.4)', display: 'inline-block' }} />
-        Jak to probíhá
-      </p>
-
-      <div style={{ display: 'flex', flexDirection: 'column', position: 'relative', zIndex: 2 }}>
-        {steps.map((step, i) => (
-          <div
-            key={step.num}
-            onClick={() => setActiveStep(i)}
-            style={{
-              display: 'grid',
-              gridTemplateColumns: '32px 1fr auto',
-              gap: 12,
-              alignItems: 'center',
-              padding: '10px 0',
-              borderBottom: i < steps.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none',
-              cursor: 'pointer',
-              opacity: activeStep === i ? 1 : 0.28,
-              transition: 'opacity 0.35s ease',
-            }}
-          >
-            <div style={{
-              width: 28, height: 28, borderRadius: '50%',
-              border: `1px solid ${activeStep === i ? 'rgba(212,164,95,0.35)' : 'rgba(255,255,255,0.08)'}`,
-              background: activeStep === i ? 'rgba(212,164,95,0.08)' : 'transparent',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 8, fontWeight: 700,
-              color: activeStep === i ? 'rgba(212,164,95,0.85)' : 'rgba(255,255,255,0.25)',
-              transition: 'all 0.35s ease', flexShrink: 0,
-            }}>
-              {step.num}
-            </div>
-
-            <div>
-              <div style={{ fontSize: 12, fontWeight: 700, color: activeStep === i ? '#fff' : 'rgba(255,255,255,0.5)', letterSpacing: '-0.01em', marginBottom: activeStep === i ? 3 : 0, transition: 'all 0.35s ease' }}>
-                {step.title}
-              </div>
-              <div style={{
-                fontSize: 10, color: 'rgba(255,255,255,0.28)', lineHeight: 1.55,
-                maxHeight: activeStep === i ? 40 : 0,
-                overflow: 'hidden',
-                opacity: activeStep === i ? 1 : 0,
-                transition: 'max-height 0.35s ease, opacity 0.35s ease',
-              }}>
-                {step.desc}
-              </div>
-            </div>
-
-            <div style={{
-              fontSize: 8, letterSpacing: '0.06em',
-              color: activeStep === i ? 'rgba(212,164,95,0.55)' : 'rgba(255,255,255,0.12)',
-              transition: 'color 0.35s ease', flexShrink: 0,
-            }}>
-              {step.time}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Progress bar */}
-      <div style={{ height: 1, background: 'rgba(255,255,255,0.05)', marginTop: 16, borderRadius: 1, overflow: 'hidden' }}>
-        <div style={{
-          height: '100%',
-          background: 'linear-gradient(90deg,#D4A45F,rgba(212,164,95,0.3))',
-          width: `${((activeStep + 1) / steps.length) * 100}%`,
-          transition: 'width 0.35s ease',
-          borderRadius: 1,
-        }} />
-      </div>
+    <div ref={containerRef} style={{ position: 'relative', overflow: 'hidden', borderLeft: '1px solid rgba(255,255,255,0.05)', cursor: 'crosshair' }}>
+      <canvas ref={canvasRef} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }} />
     </div>
   )
 }
+
 
 
 export function ServicesSection() {
@@ -460,7 +615,7 @@ export function ServicesSection() {
         </div>
 
         {/* Right — animated process steps */}
-        <ProcessSteps />
+        <HologramCards />
       </div>
 
 <style>{`@keyframes svcMarquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }`}</style>
