@@ -587,38 +587,4 @@ export function ServicesSection() {
         <HologramCards />
       </div>
 
-      {/* ── BOTTOM ROW: outro left + process steps right ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', borderTop: '1px solid rgba(255,255,255,0.05)', minHeight: 520 }}>
 
-        {/* Left — quote + outro */}
-        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '72px 64px', borderRight: '1px solid rgba(255,255,255,0.05)' }}>
-          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 16, marginBottom: 52 }}>
-            <div style={{ width: 22, height: 1, background: 'rgba(212,164,95,0.4)', flexShrink: 0, marginTop: 10 }} />
-            <p style={{ fontSize: 14, fontWeight: 300, color: 'rgba(255,255,255,0.22)', letterSpacing: '0.02em', fontStyle: 'italic', lineHeight: 1.7 }}>
-              Technologie je jen nástroj —{' '}<strong style={{ color: 'rgba(212,164,95,0.55)', fontStyle: 'normal', fontWeight: 600 }}>výsledek je to, co počítá</strong>
-            </p>
-          </div>
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7 }}>
-            <h3 style={{ fontSize: 'clamp(24px,3vw,38px)', fontWeight: 900, letterSpacing: '-0.04em', color: '#fff', lineHeight: 1.06, marginBottom: 16 }}>
-              Máte projekt<br />v hlavě?{' '}<span style={{ color: '#D4A45F' }}>Pojďme na to.</span>
-            </h3>
-            <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.32)', lineHeight: 1.8, marginBottom: 32, maxWidth: 360 }}>
-              První konzultace je zdarma. Řeknete mi o projektu, já řeknu jak na to — bez závazků, bez bullshitu.
-            </p>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 12 }}>
-              <a href="#kontakt" style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: '#D4A45F', color: '#090909', fontSize: 10, fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase', padding: '13px 28px', borderRadius: 40, boxShadow: '0 4px 24px rgba(212,164,95,0.25)', textDecoration: 'none' }}>
-                Domluvit konzultaci ↗
-              </a>
-              <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.15)', letterSpacing: '0.08em' }}>Obvykle odpovídám do 24 hodin</span>
-            </div>
-          </motion.div>
-        </div>
-
-        {/* Right — animated process steps */}
-        <HologramCards />
-      </div>
-
-<style>{`@keyframes svcMarquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }`}</style>
-    </section>
-  )
-}
