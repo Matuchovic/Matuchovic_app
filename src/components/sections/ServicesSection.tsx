@@ -537,9 +537,9 @@ export function ServicesSection() {
     <section id="sluzby" style={{ background: '#090909' }}>
 
       {/* ── INTRO ── */}
-      <div className="relative overflow-hidden" style={{ padding: '72px 64px 52px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+      <div className="relative overflow-hidden" style={{ padding: 'clamp(40px,6vw,72px) clamp(24px,5vw,64px) clamp(32px,4vw,52px)', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
         <div className="absolute select-none pointer-events-none" style={{ top: -8, right: -24, fontSize: 140, fontWeight: 900, color: 'rgba(255,255,255,0.02)', letterSpacing: '-0.06em', lineHeight: 1 }}>SLUŽBY</div>
-        <div className="relative z-10 grid gap-14" style={{ gridTemplateColumns: '1fr 1fr' }}>
+        <div className="relative z-10 grid gap-8 md:gap-14" style={{ gridTemplateColumns: '1fr' }} data-mobile="true">
           <div>
             <motion.p initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}
               style={{ fontSize: 8, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'rgba(212,164,95,0.75)', marginBottom: 18, display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -582,7 +582,7 @@ export function ServicesSection() {
       </div>
 
       {/* ── SCROLLING CARDS + PROCESS STEPS ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: '300px 1fr', height: 520, borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', minHeight: 480, borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
         <ScrollingCards onActiveChange={handleActiveChange} />
         <HologramCards />
       </div>

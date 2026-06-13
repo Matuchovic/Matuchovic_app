@@ -65,7 +65,6 @@ export function HeroSection() {
       wrap.style.cssText = `position:absolute;width:${coin.size}px;height:${coin.size}px;left:${coin.x}%;top:${coin.y}%;border-radius:50%;cursor:pointer;perspective:600px;z-index:4;`
       const inner = document.createElement('div')
       inner.style.cssText = `width:100%;height:100%;transform-style:preserve-3d;border-radius:50%;`
-
       const makeFace = (isFront: boolean) => {
         const face = document.createElement('div')
         face.style.cssText = `position:absolute;inset:0;border-radius:50%;backface-visibility:hidden;-webkit-backface-visibility:hidden;display:flex;align-items:center;justify-content:center;overflow:hidden;background:radial-gradient(135deg at ${isFront?'30% 30%':'70% 70%'},#1c1c1c,#080808);border:1px solid rgba(255,255,255,0.1);box-shadow:0 8px 28px rgba(0,0,0,0.6),inset 0 1px 0 rgba(255,255,255,0.1);${!isFront?'transform:rotateY(180deg);':''}`
@@ -78,13 +77,8 @@ export function HeroSection() {
           if (ts - lastCN >= 55) {
             const img = cctx.createImageData(coin.size, coin.size)
             const d = img.data
-            for (let i = 0; i < d.length; i += 4) {
-              const v = (Math.random() * 255) | 0
-              d[i] = v; d[i+1] = v; d[i+2] = v
-              d[i+3] = (Math.random() * 0.08 * 255) | 0
-            }
-            cctx.putImageData(img, 0, 0)
-            lastCN = ts
+            for (let i = 0; i < d.length; i += 4) { const v = (Math.random() * 255) | 0; d[i] = v; d[i+1] = v; d[i+2] = v; d[i+3] = (Math.random() * 0.08 * 255) | 0 }
+            cctx.putImageData(img, 0, 0); lastCN = ts
           }
           requestAnimationFrame(cnLoop)
         }
@@ -97,7 +91,6 @@ export function HeroSection() {
         face.appendChild(cv); face.appendChild(sheen); face.appendChild(ic)
         return face
       }
-
       inner.appendChild(makeFace(true)); inner.appendChild(makeFace(false)); wrap.appendChild(inner)
       const lbl = document.createElement('div')
       lbl.textContent = coin.label
@@ -138,29 +131,44 @@ export function HeroSection() {
       <div className="absolute inset-y-0 right-0 w-16 pointer-events-none z-10" style={{ background: 'linear-gradient(to left,#090909,transparent)' }} />
       <div className="absolute pointer-events-none z-0" style={{ width:500,height:300,borderRadius:'50%',background:'radial-gradient(ellipse,rgba(212,164,95,0.05) 0%,transparent 65%)',top:'50%',left:'50%',transform:'translate(-50%,-50%)' }} />
 
-      <div className="relative z-20 flex flex-1 items-center max-w-screen-2xl mx-auto w-full px-8 md:px-16" style={{ minHeight: '100vh' }}>
-        <div className="flex-1 max-w-xl">
-          <motion.p {...fade} transition={{ duration: 0.8, delay: 0.1 }} className="text-[9px] tracking-[0.2em] uppercase text-white/30 mb-6 flex items-center gap-3">
-            <span className="w-6 h-px bg-gold/50 inline-block" />Digitální studio
+      <div className="relative z-20 flex flex-1 items-center max-w-screen-2xl mx-auto w-full px-6 md:px-16" style={{ minHeight: '100vh' }}>
+        {/* Text — always visible */}
+        <div className="flex-1 max-w-xl py-24 md:py-0">
+          <motion.p {...fade} transition={{ duration: 0.8, delay: 0.1 }}
+            className="text-[9px] tracking-[0.2em] uppercase text-white/30 mb-6 flex items-center gap-3">
+            <span className="w-6 h-px bg-gold/50 inline-block" />
+            Digitální studio
           </motion.p>
-          <motion.h1 {...fade} transition={{ duration: 0.9, delay: 0.2 }} className="font-black tracking-tight leading-[1.02] text-white mb-5" style={{ fontSize: 'clamp(2.4rem,5.5vw,4.5rem)', letterSpacing: '-0.04em' }}>
-            Vytvářím digitální<br />produkty, které<br /><span className="text-gold">posouvají firmy<br />dopředu.</span>
+          <motion.h1 {...fade} transition={{ duration: 0.9, delay: 0.2 }}
+            className="font-black tracking-tight leading-[1.02] text-white mb-5"
+            style={{ fontSize: 'clamp(2rem,7vw,4.5rem)', letterSpacing: '-0.04em' }}>
+            Vytvářím digitální<br />
+            produkty, které<br />
+            <span style={{ color: '#D4A45F' }}>posouvají firmy<br />dopředu.</span>
           </motion.h1>
-          <motion.p {...fade} transition={{ duration: 0.8, delay: 0.35 }} className="text-sm text-white/40 mb-10 leading-relaxed max-w-sm">
+          <motion.p {...fade} transition={{ duration: 0.8, delay: 0.35 }}
+            className="text-sm text-white/40 mb-10 leading-relaxed max-w-sm">
             Weby, webové aplikace, AI systémy<br />a automatizace na míru vašemu podnikání.
           </motion.p>
-          <motion.div {...fade} transition={{ duration: 0.8, delay: 0.45 }} className="flex items-center gap-4">
-            <a href="#kontakt" className="inline-flex items-center gap-2 bg-gold text-background font-bold text-[10px] tracking-[0.1em] uppercase px-6 py-3.5 rounded-full hover:bg-gold-light transition-colors duration-200">Domluvit konzultaci ↗</a>
-            <a href="#projekty" className="inline-flex items-center gap-2 text-[10px] font-semibold tracking-[0.1em] uppercase text-white/45 border border-white/12 px-5 py-3.5 rounded-full hover:text-white hover:border-white/25 transition-all duration-200">Zobrazit projekty ↗</a>
+          <motion.div {...fade} transition={{ duration: 0.8, delay: 0.45 }} className="flex flex-wrap items-center gap-3">
+            <a href="#kontakt" style={{ display:'inline-flex',alignItems:'center',gap:8,background:'#D4A45F',color:'#090909',fontWeight:800,fontSize:10,letterSpacing:'0.1em',textTransform:'uppercase',padding:'12px 24px',borderRadius:40,textDecoration:'none' }}>
+              Domluvit konzultaci ↗
+            </a>
+            <a href="#projekty" style={{ display:'inline-flex',alignItems:'center',gap:8,fontSize:10,fontWeight:600,letterSpacing:'0.1em',textTransform:'uppercase',color:'rgba(255,255,255,0.45)',border:'1px solid rgba(255,255,255,0.12)',padding:'12px 20px',borderRadius:40,textDecoration:'none' }}>
+              Zobrazit projekty ↗
+            </a>
           </motion.div>
         </div>
+
+        {/* Coins — desktop only */}
         <div className="hidden lg:block relative flex-1" style={{ minHeight: '100vh' }}>
           <div className="absolute inset-y-0 left-0 w-32 pointer-events-none z-10" style={{ background: 'linear-gradient(to right,#090909,transparent)' }} />
           <div ref={coinsContainerRef} className="absolute inset-0" />
         </div>
       </div>
 
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.2, duration: 0.8 }} className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2">
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.2, duration: 0.8 }}
+        className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2">
         <div className="w-6 h-6 rounded-full border border-white/15 flex items-center justify-center text-white/25 text-xs">+</div>
         <span className="text-[9px] tracking-[0.16em] uppercase text-white/20">Scroll</span>
       </motion.div>
