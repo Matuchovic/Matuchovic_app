@@ -584,7 +584,7 @@ export function ServicesSection() {
       {/* ── SCROLLING CARDS + PROCESS STEPS ── */}
       <div style={{ display: 'grid', gridTemplateColumns: '300px 1fr', height: 520, borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
         <ScrollingCards onActiveChange={handleActiveChange} />
-        <ProcessSteps />
+        <HologramCards />
       </div>
 
       {/* ── BOTTOM ROW: outro left + process steps right ── */}
