@@ -586,5 +586,7 @@ export function ServicesSection() {
         <ScrollingCards onActiveChange={handleActiveChange} />
         <HologramCards />
       </div>
-
-
+<style>{\`@keyframes svcMarquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }\`}</style>
+    </section>
+  )
+}
