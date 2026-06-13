@@ -94,7 +94,7 @@ export function Navbar() {
           <a href="#kontakt" className="nav-cta" onClick={() => setMenuOpen(false)} style={{fontFamily:'Inter,sans-serif',fontSize:12,fontWeight:800,letterSpacing:'0.1em',textTransform:'uppercase',color:'#090909',background:'linear-gradient(135deg,#E8C080,#D4A45F,#C8903A)',padding:'14px 32px',borderRadius:40,textDecoration:'none',boxShadow:'0 4px 24px rgba(212,164,95,0.3)'}}>
             Konzultace ↗
           </a>
-          <p style={{marginTop:32,fontFamily:'Inter,sans-serif',fontSize:10,letterSpacing:'0.12em',color:'info@ondrejmatucha.cz',color:'rgba(255,255,255,0.2)'}}>
+          <p style={{marginTop:32,fontFamily:'Inter,sans-serif',fontSize:10,letterSpacing:'0.12em',color:'rgba(255,255,255,0.2)'}}>
             info@ondrejmatucha.cz
           </p>
         </div>
